@@ -2,670 +2,1174 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ORT · PENTHOUSE · 360° · 12e · 6D · iki1uc</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>⚙️ iki1uc · index.html · MASTER · MAcht über Alle Funktionen</title>
 <style>
-/* ===== BASIS ===== */
-* { box-sizing:border-box; margin:0; padding:0; }
-body {
-  background: #0a0a0f;
-  color: #00ffff;
-  font-family: 'Consolas', 'Courier New', monospace;
-  overflow: hidden;
-  height: 100vh;
-  perspective: 1200px;
-}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --bg:#05070e; --fg:#c0d0d0; --panel:rgba(6,8,16,0.7);
+    --cyan:#6cf; --gold:#f0d080; --purple:#b388ff;
+    --green:#8cf0d0; --red:#ff6666; --orange:#ff8c00;
+    --line:rgba(120,220,150,0.08);
+    --serif:'Yu Mincho','Hiragino Mincho ProN','Times New Roman',serif;
+  }
+  html,body{height:100%;}
+  body{
+    background:var(--bg); color:var(--fg);
+    font-family:'Consolas','Courier New',monospace;
+    height:100vh; overflow:hidden;
+    display:flex; flex-direction:column;
+    -webkit-tap-highlight-color:transparent;
+  }
+  button{font-family:inherit;cursor:pointer;}
 
-/* ===== HEADER ===== */
-.header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 56px;
-  background: rgba(10,10,18,0.92);
-  border-bottom: 2px solid #33ccff;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 24px;
-  z-index: 1000;
-  backdrop-filter: blur(10px);
-}
-.header h1 {
-  color: #33ccff;
-  font-size: 20px;
-  text-shadow: 0 0 30px rgba(51,204,255,0.3);
-  letter-spacing: 3px;
-}
-.header h1 span { color: #ffdd00; }
-.header .info {
-  color: #6688aa;
-  font-size: 11px;
-  display: flex;
-  gap: 24px;
-}
-.header .info span { color: #ffdd00; }
-.header .info .freq { color: #ff66ff; }
+  /* HEADER */
+  header{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:9px 16px;
+    border-bottom:1px solid var(--line);
+    background:rgba(6,8,16,0.9);
+    backdrop-filter:blur(10px);
+    flex-wrap:wrap; gap:10px; z-index:6;
+  }
+  header h1{
+    font-size:15px; font-weight:300; letter-spacing:2px;
+    background:linear-gradient(135deg,#7ee0a0,#d8f0c0,#b388ff);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  header h1 small{
+    font-size:9px; color:#5a7a8a;
+    -webkit-text-fill-color:#5a7a8a;
+    letter-spacing:1px; margin-left:8px;
+  }
+  header h1 .tag{
+    font-size:8px; letter-spacing:2px;
+    -webkit-text-fill-color:#f0d080;
+    border:1px solid rgba(240,208,128,0.4);
+    border-radius:4px; padding:1px 6px; margin-left:8px;
+  }
+  .stats{
+    display:flex; gap:12px; font-size:9.5px;
+    color:#6a8a7a; align-items:center; flex-wrap:wrap;
+  }
+  .stats b{font-weight:bold;}
+  .stats .v-gold{color:#f0d080;}
+  .stats .v-purple{color:#b388ff;}
+  .stats .v-green{color:#8cf0d0;}
+  .stats .v-cyan{color:#6cf;}
+  .led{display:inline-block;width:7px;height:7px;border-radius:50%;background:#3a3a3a;margin-right:4px;transition:.3s;}
+  .led.on{background:#8cf0d0;box-shadow:0 0 6px #8cf0d0;}
+  .led.purple{background:#b388ff;box-shadow:0 0 6px #b388ff;}
+  .led.warn{background:#f0d080;box-shadow:0 0 6px #f0d080;}
+  .led.err{background:#ff6666;box-shadow:0 0 6px #ff6666;}
+  .led.pulse{animation:pulse 1.4s infinite;}
+  @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
 
-/* ===== PENTHOUSE ===== */
-#penthouse {
-  position: fixed;
-  top: 56px;
-  left: 0;
-  right: 0;
-  bottom: 60px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  background: radial-gradient(ellipse at center, #0a0a1a, #000000);
-  overflow: hidden;
-}
+  /* TABS */
+  #tabs{
+    display:flex; gap:3px; padding:6px 12px;
+    background:rgba(6,8,16,0.9);
+    border-bottom:1px solid var(--line);
+    overflow-x:auto;
+  }
+  #tabs button{
+    background:rgba(20,20,30,0.6);
+    border:1px solid rgba(179,136,255,0.15);
+    color:#8a9aa0; padding:5px 14px;
+    border-radius:5px; font-size:10px;
+    letter-spacing:1.5px; white-space:nowrap;
+    transition:.18s;
+  }
+  #tabs button:hover{border-color:#6cf;color:#d0e8e0;}
+  #tabs button.active{
+    background:rgba(179,136,255,0.15);
+    color:#fff; border-color:#b388ff;
+  }
 
-/* ===== 360° PANORAMA ===== */
-.panorama {
-  position: relative;
-  width: 100%;
-  max-width: 1200px;
-  height: 100%;
-  max-height: 700px;
-  transform: rotateX(5deg) rotateY(0deg);
-  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-style: preserve-3d;
-}
-.panorama:hover {
-  transform: rotateX(2deg) rotateY(5deg);
-}
+  /* MAIN */
+  #main{
+    flex:1; display:grid;
+    grid-template-columns:220px 1fr 240px;
+    overflow:hidden;
+  }
+  .col{padding:10px; overflow-y:auto; background:var(--panel);}
+  #left{border-right:1px solid var(--line);}
+  #right{border-left:1px solid var(--line);}
 
-/* ===== 6D-MATRIX BODEN ===== */
-.floor {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%) rotateX(90deg) translateZ(-200px);
-  width: 800px;
-  height: 800px;
-  background: repeating-conic-gradient(
-    from 0deg at 50% 50%,
-    #1a1a3a 0deg 10deg,
-    #0a0a1a 10deg 20deg
-  );
-  border-radius: 50%;
-  opacity: 0.3;
-  animation: floorSpin 40s linear infinite;
-  box-shadow: 0 0 80px rgba(51,204,255,0.1);
-}
-@keyframes floorSpin {
-  from { transform: translateX(-50%) rotateX(90deg) translateZ(-200px) rotate(0deg); }
-  to { transform: translateX(-50%) rotateX(90deg) translateZ(-200px) rotate(360deg); }
-}
+  .panel-title{
+    font-size:10px; color:var(--gold); letter-spacing:1.5px;
+    border-bottom:1px solid rgba(255,215,0,0.08);
+    padding-bottom:5px; margin-bottom:8px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .panel-title .badge{font-size:8px; color:#5a7a8a; font-weight:400;}
+  .panel-title.purple{color:var(--purple);border-bottom-color:rgba(179,136,255,0.15);}
+  .panel-title.cyan{color:var(--cyan);border-bottom-color:rgba(108,204,255,0.15);}
+  .panel-title.green{color:var(--green);border-bottom-color:rgba(120,220,150,0.15);}
 
-/* ===== 12e FREQUENZ-STROM ===== */
-.freq-stream {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-.freq-particle {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: #33ccff;
-  border-radius: 50%;
-  box-shadow: 0 0 20px rgba(51,204,255,0.5);
-  animation: freqRise linear infinite;
-}
-@keyframes freqRise {
-  0% { transform: translateY(100%) scale(0); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { transform: translateY(-100%) scale(1); opacity: 0; }
-}
+  /* MODULE ITEM */
+  .module-item{
+    display:flex; align-items:center; gap:6px;
+    padding:5px 7px; border-radius:5px;
+    font-size:10px; color:#8aa8a0; cursor:pointer;
+    border-left:2px solid transparent;
+    transition:.15s; margin-bottom:2px;
+  }
+  .module-item:hover{background:rgba(120,220,150,0.04);color:#d0e8e0;}
+  .module-item.active{background:rgba(120,220,150,0.08);border-left-color:var(--green);color:#d0e8e0;}
+  .module-item.fail{opacity:0.4;}
+  .module-item .dot{width:6px;height:6px;border-radius:50%;background:#3a3a3a;flex-shrink:0;transition:.3s;}
+  .module-item.active .dot{background:var(--green);box-shadow:0 0 6px var(--green);}
+  .module-item.fail .dot{background:#ff6666;}
 
-/* ===== SCHACHBRETT-BODEN ===== */
-.chess-floor {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%) rotateX(70deg) translateZ(-100px);
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  gap: 2px;
-  width: 360px;
-  height: 360px;
-  opacity: 0.4;
-}
-.chess-floor .cell {
-  background: #1a1a2a;
-  aspect-ratio: 1;
-  border-radius: 2px;
-}
-.chess-floor .cell.light { background: #2a2a4a; }
-.chess-floor .cell.dark { background: #0a0a1a; }
-.chess-floor .cell.omega { background: #ffdd00; box-shadow: 0 0 20px rgba(255,221,0,0.2); }
+  /* VIEW */
+  #center{display:flex; flex-direction:column; padding:10px; overflow:hidden;}
+  .view{display:none; flex:1; overflow:hidden; flex-direction:column;}
+  .view.active{display:flex;}
 
-/* ===== RESPO-ARG-SCANNER ===== */
-.scanner {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 400px;
-  height: 400px;
-  border: 2px solid rgba(51,204,255,0.15);
-  border-radius: 50%;
-  animation: scannerPulse 3s ease-in-out infinite;
-}
-.scanner::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 200px;
-  height: 200px;
-  border: 1px solid rgba(255,221,0,0.1);
-  border-radius: 50%;
-  animation: scannerPulse 2s ease-in-out infinite 0.5s;
-}
-.scanner::after {
-  content: '●';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #ffdd00;
-  font-size: 12px;
-  animation: scannerBlink 1s ease-in-out infinite;
-}
-@keyframes scannerPulse {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
-  50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
-}
-@keyframes scannerBlink {
-  0%, 100% { opacity: 0.2; }
-  50% { opacity: 1; text-shadow: 0 0 40px #ffdd00; }
-}
+  /* MACHT VIEW */
+  #machtGrid{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+    gap:10px; padding:6px; overflow-y:auto;
+  }
+  .macht-card{
+    background:rgba(0,0,0,0.3);
+    border:1px solid rgba(120,220,150,0.08);
+    border-radius:8px; padding:12px;
+    font-size:10px;
+  }
+  .macht-card h3{
+    font-size:11px; color:var(--cyan);
+    letter-spacing:2px; margin-bottom:8px;
+    text-transform:uppercase;
+  }
+  .macht-card .row{
+    display:flex; justify-content:space-between;
+    padding:3px 0; font-size:10px;
+    border-bottom:1px solid rgba(255,255,255,0.03);
+  }
+  .macht-card .row .lbl{color:#8aa8a0;}
+  .macht-card .row .val{font-weight:bold;color:#d0e8e0;}
+  .macht-card .val.on{color:#8cf0d0;}
+  .macht-card .val.off{color:#ff6666;}
+  .macht-card .actions{display:flex; gap:5px; margin-top:8px;}
+  .macht-card button{
+    flex:1; background:rgba(20,28,20,0.6);
+    border:1px solid rgba(120,220,150,0.2);
+    color:#d0e8e0; padding:5px 0;
+    border-radius:5px; font-size:9px;
+    transition:.2s; letter-spacing:1px;
+  }
+  .macht-card button:hover{border-color:#7ee0a0;background:rgba(120,220,150,0.1);}
 
-/* ===== 6D-ACHSE ===== */
-.axis-6d {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 600px;
-  height: 600px;
-  border: 1px solid rgba(51,204,255,0.05);
-  border-radius: 50%;
-  animation: axisSpin 60s linear infinite;
-}
-.axis-6d .ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  border: 1px solid rgba(51,204,255,0.08);
-}
-.axis-6d .ring.r1 { width: 80%; height: 80%; }
-.axis-6d .ring.r2 { width: 60%; height: 60%; }
-.axis-6d .ring.r3 { width: 40%; height: 40%; }
-.axis-6d .ring.r4 { width: 20%; height: 20%; border-color: rgba(255,221,0,0.15); }
-@keyframes axisSpin {
-  from { transform: translate(-50%, -50%) rotate(0deg); }
-  to { transform: translate(-50%, -50%) rotate(360deg); }
-}
+  /* EXPLORER */
+  #explorerList{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr));
+    gap:8px; padding:6px; overflow-y:auto;
+  }
+  .folder-card{
+    background:rgba(0,0,0,0.35);
+    border:1px solid rgba(120,220,150,0.1);
+    border-radius:6px; padding:10px 8px;
+    text-align:center; cursor:pointer;
+    transition:.18s;
+  }
+  .folder-card:hover{border-color:#7ee0a0;background:rgba(120,220,150,0.05);}
+  .folder-card .num{font-size:22px;color:#f0d080;font-weight:bold;line-height:1;}
+  .folder-card .name{font-size:9px;color:#8aa8a0;margin-top:4px;}
 
-/* ===== ORT-MARKER ===== */
-.ort-marker {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #ffdd00;
-  font-size: 48px;
-  text-shadow: 0 0 60px rgba(255,221,0,0.3);
-  animation: markerPulse 2s ease-in-out infinite;
-}
-@keyframes markerPulse {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
-  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
-}
+  /* COMMANDER */
+  #cmdPanel{padding:10px; overflow-y:auto;}
+  .cmd-section{
+    background:rgba(0,0,0,0.3);
+    border-left:3px solid var(--purple);
+    border-radius:6px;
+    padding:10px 12px; margin-bottom:10px;
+  }
+  .cmd-section h4{
+    font-size:11px; color:var(--purple);
+    letter-spacing:2px; text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  .cmd-section .btns{display:flex; flex-wrap:wrap; gap:5px;}
+  .cmd-section button{
+    background:rgba(20,20,30,0.7);
+    border:1px solid rgba(179,136,255,0.25);
+    color:#b388ff; padding:6px 14px;
+    border-radius:5px; font-size:10px;
+    letter-spacing:1.5px; text-transform:uppercase;
+  }
+  .cmd-section button:hover{background:rgba(179,136,255,0.15);color:#fff;}
 
-/* ===== .TMP-RÄUME ===== */
-.tmp-rooms {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-}
-.tmp-room {
-  position: absolute;
-  padding: 4px 10px;
-  background: rgba(17,17,34,0.6);
-  border: 1px solid rgba(51,204,255,0.1);
-  border-radius: 4px;
-  font-size: 8px;
-  color: #6688aa;
-  backdrop-filter: blur(4px);
-  transition: all 0.3s;
-  cursor: pointer;
-  pointer-events: auto;
-}
-.tmp-room:hover {
-  border-color: #33ccff;
-  color: #00ffff;
-  transform: scale(1.1);
-  box-shadow: 0 0 30px rgba(51,204,255,0.1);
-}
+  /* PAINT */
+  #paintWrap{flex:1; display:flex; flex-direction:column; padding:8px; overflow:hidden;}
+  #paintCanvas{
+    flex:1; background:rgba(0,0,0,0.4);
+    border:1px solid rgba(120,220,150,0.1);
+    border-radius:6px; cursor:crosshair;
+    touch-action:none;
+  }
+  #paintTools{
+    display:flex; gap:5px; padding:6px 0; align-items:center;
+    font-size:9px; color:#8aa8a0; flex-wrap:wrap;
+  }
+  #paintTools button{
+    background:rgba(20,20,30,0.6);
+    border:1px solid rgba(120,220,150,0.2);
+    color:#d0e8e0; padding:4px 10px;
+    border-radius:4px; font-size:9px;
+  }
+  #paintTools button.active{background:rgba(120,220,150,0.15);border-color:#7ee0a0;color:#fff;}
+  #paintTools input[type=color]{
+    width:32px;height:24px;border:none;background:transparent;cursor:pointer;
+  }
+  #paintTools input[type=range]{width:80px;}
 
-/* ===== STATUS ===== */
-#status {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 56px;
-  background: rgba(10,10,18,0.92);
-  border-top: 2px solid #2a2a3a;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 24px;
-  z-index: 1000;
-  backdrop-filter: blur(10px);
-}
-#status .left { color: #6688aa; font-size: 12px; }
-#status .left span { color: #ffdd00; }
-#status .center { color: #33ccff; font-size: 13px; }
-#status .center span { color: #ff66ff; }
-#status .right { color: #6688aa; font-size: 11px; }
-#status .right span { color: #88ff44; }
+  /* VIEWER */
+  #viewerPanel{padding:10px; overflow-y:auto;}
+  .viewer-pre{
+    background:rgba(0,0,0,0.4);
+    border:1px solid rgba(120,220,150,0.08);
+    border-radius:6px; padding:10px 14px;
+    font-size:10px; line-height:1.6;
+    color:#c0d8d0; white-space:pre-wrap;
+    font-family:'Consolas',monospace;
+  }
+  .viewer-pre .k{color:#6cf;}
+  .viewer-pre .v{color:#f0d080;}
+  .viewer-pre .g{color:#8cf0d0;}
 
-/* ===== CONTROLS ===== */
-#controls {
-  position: fixed;
-  bottom: 62px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 8px;
-  z-index: 1001;
-}
-#controls button {
-  background: rgba(17,17,34,0.8);
-  color: #6688aa;
-  border: 1px solid #2a2a4a;
-  padding: 6px 16px;
-  cursor: pointer;
-  font-family: 'Consolas', monospace;
-  font-size: 10px;
-  border-radius: 4px;
-  transition: all 0.3s;
-  backdrop-filter: blur(4px);
-}
-#controls button:hover { background: #1a1a3a; border-color: #66ccff; color: #00ffff; }
-#controls button.active { background: #1a2a4a; color: #00ff88; border-color: #00ff88; }
-#controls button.penthouse { color: #ffdd00; border-color: #554400; }
-#controls button.penthouse:hover { background: #2a1a00; border-color: #ffdd00; }
+  /* SUITE */
+  #suiteWrap{flex:1; position:relative; overflow:hidden;}
+  #suiteFrame{width:100%; height:100%; border:none; background:#05070e;}
+  #suiteFallback{
+    display:none;
+    position:absolute; inset:0;
+    padding:20px; color:#8aa8a0;
+    font-size:11px; line-height:1.7;
+    background:rgba(5,7,14,0.95);
+    overflow-y:auto;
+  }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 900px) {
-  .header h1 { font-size: 14px; }
-  .header .info { font-size: 9px; gap: 12px; }
-  .floor { width: 500px; height: 500px; }
-  .chess-floor { width: 240px; height: 240px; }
-  .scanner { width: 280px; height: 280px; }
-  .scanner::before { width: 140px; height: 140px; }
-  .axis-6d { width: 400px; height: 400px; }
-  .ort-marker { font-size: 32px; }
-  .tmp-room { font-size: 6px; padding: 2px 6px; }
-}
-@media (max-width: 600px) {
-  .header .info { display: none; }
-  #controls { bottom: 62px; flex-wrap: wrap; justify-content: center; max-width: 90%; }
-  .floor { width: 300px; height: 300px; }
-  .chess-floor { width: 160px; height: 160px; }
-  .scanner { width: 200px; height: 200px; }
-  .scanner::before { width: 100px; height: 100px; }
-  .axis-6d { width: 280px; height: 280px; }
-}
+  /* LOG */
+  #logBox{
+    max-height:80px; overflow-y:auto;
+    padding:6px 12px; background:rgba(0,0,0,0.5);
+    border-top:1px solid var(--line);
+    font-size:9px; line-height:1.5; color:#8ab0c0;
+  }
+  #logBox .entry{padding:1px 0;border-bottom:1px solid rgba(255,255,255,0.02);}
+  #logBox .time{color:#3a4a5a;margin-right:5px;}
+  #logBox .tag{color:#6cf;margin-right:4px;}
+  #logBox .ok{color:#8cf0d0;}
+  #logBox .warn{color:#f0d080;}
+  #logBox .err{color:#ff6666;}
+  #logBox .macht{color:#b388ff;font-weight:bold;}
+
+  /* FOOTER */
+  footer{
+    padding:5px 14px; background:rgba(6,8,16,0.85);
+    border-top:1px solid var(--line);
+    font-size:8.5px; color:#445555;
+    display:flex; justify-content:space-between;
+    flex-wrap:wrap; gap:8px;
+  }
+  footer .gold{color:var(--gold);}
+  footer .purple{color:var(--purple);}
+  footer .green{color:var(--green);}
+  footer .cyan{color:var(--cyan);}
+
+  /* FL76 Monitor */
+  #fl76mon{
+    position:fixed; bottom:60px; right:14px;
+    padding:6px 12px;
+    background:rgba(6,8,16,0.9);
+    border:1px solid rgba(140,240,208,0.3);
+    border-radius:6px;
+    font-size:10px; letter-spacing:1.5px;
+    color:#8cf0b0; z-index:12;
+    text-align:right;
+    min-width:130px;
+  }
+  #fl76mon .num{font-size:16px;font-weight:bold;color:#8cf0b0;}
+  #fl76mon.outside{border-color:rgba(255,102,102,0.5);}
+  #fl76mon.outside .num{color:#ff6666;}
+  #fl76mon.edge{border-color:rgba(240,208,128,0.5);}
+  #fl76mon.edge .num{color:#f0d080;}
+
+  /* MOBILE */
+  #mobTabs{display:none;}
+  @media (max-width:900px){
+    #main{grid-template-columns:1fr;}
+    #main .col{display:none;}
+    #main[data-tab="left"] #left{display:block;}
+    #main[data-tab="right"] #right{display:block;}
+    #main[data-tab="view"] #center{display:flex;}
+    #left,#right{border:none;}
+    #mobTabs{
+      display:flex; gap:3px; padding:5px 8px;
+      background:rgba(6,8,16,0.85);
+      border-bottom:1px solid var(--line);
+    }
+    #mobTabs button{
+      flex:1; background:rgba(20,20,30,0.6);
+      border:1px solid rgba(179,136,255,0.2);
+      color:#b388ff; padding:6px 4px;
+      border-radius:5px; font-size:9px;
+    }
+    #mobTabs button.active{background:rgba(179,136,255,0.2);color:#fff;}
+    #fl76mon{bottom:52px;right:8px;font-size:9px;padding:4px 8px;min-width:100px;}
+  }
 </style>
 </head>
 <body>
 
-<!-- ===== HEADER ===== -->
-<div class="header">
-  <h1>🏠 ORT · <span>PENTHOUSE</span> · 360°</h1>
-  <div class="info">
-    <span class="freq">12e</span>
-    <span>6D · <span id="d5">D5</span></span>
-    <span>RESPO · <span id="respo-status">synthesis</span></span>
-    <span>NC² · <span id="nc2-val">128</span></span>
+<header>
+  <h1>⚙️ index.html · MASTER
+    <small>explorercity · MAcht über alle Funktionen</small>
+    <span class="tag">AUTO-START</span>
+  </h1>
+  <div class="stats">
+    <span><span class="led" id="ledMaster"></span>MASTER</span>
+    <span><span class="led on pulse" id="ledKIT"></span>KIT</span>
+    <span><span class="led on pulse" id="ledGROUB"></span>GROUB</span>
+    <span><span class="led on pulse" id="ledWORK"></span>WORK</span>
+    <span>Module <b class="v-gold" id="hdrModules">0/6</b></span>
+    <span>Score <b class="v-purple" id="hdrScore">0</b></span>
+    <span>Rith <b class="v-green" id="hdrRith">0</b></span>
+    <span id="hdrClock" style="color:#4a5a5a;">⏱️ --:--</span>
   </div>
+</header>
+
+<div id="mobTabs">
+  <button data-tab="left">⚙️ Module</button>
+  <button data-tab="view" class="active">👁 View</button>
+  <button data-tab="right">📊 Stats</button>
 </div>
 
-<!-- ===== PENTHOUSE ===== -->
-<div id="penthouse">
-  <div class="panorama" id="panorama">
+<div id="main" data-tab="view">
 
-    <!-- 6D-MATRIX BODEN -->
-    <div class="floor"></div>
+  <!-- LINKS: MODULE -->
+  <div class="col" id="left">
+    <div class="panel-title purple">
+      <span>⚙️ MASTER · MODULE</span>
+      <span class="badge" id="modCount">0/6</span>
+    </div>
+    <div id="moduleList"></div>
 
-    <!-- 12e FREQUENZ-STROM -->
-    <div class="freq-stream" id="freqStream"></div>
-
-    <!-- SCHACHBRETT-BODEN -->
-    <div class="chess-floor" id="chessFloor"></div>
-
-    <!-- 6D-ACHSE -->
-    <div class="axis-6d">
-      <div class="ring r1"></div>
-      <div class="ring r2"></div>
-      <div class="ring r3"></div>
-      <div class="ring r4"></div>
+    <div class="panel-title cyan" style="margin-top:12px;">
+      <span>🔌 MASTER · SWITCHES</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">
+      <button id="btnStartAll" style="flex:1;background:rgba(20,30,20,0.6);border:1px solid rgba(120,220,150,0.3);color:#8cf0d0;padding:5px;border-radius:5px;font-size:9px;">▶ START ALL</button>
+      <button id="btnStopAll" style="flex:1;background:rgba(30,20,20,0.6);border:1px solid rgba(255,102,102,0.3);color:#ff6666;padding:5px;border-radius:5px;font-size:9px;">⏸ STOP ALL</button>
     </div>
 
-    <!-- RESPO-ARG-SCANNER -->
-    <div class="scanner"></div>
+    <div class="panel-title green" style="margin-top:14px;">
+      <span>🔗 NC · SCHEIBEN</span>
+    </div>
+    <div style="font-size:9px;line-height:1.8;color:#8aa8a0;margin-top:6px;" id="ncScheiben">
+      KIT=3 · GROUB=9 · WORK=81
+    </div>
+  </div>
 
-    <!-- ORT-MARKER -->
-    <div class="ort-marker">◉</div>
+  <!-- MITTE: VIEWS -->
+  <div id="center">
 
-    <!-- .TMP-RÄUME -->
-    <div class="tmp-rooms" id="tmpRooms"></div>
+    <!-- ═══ MACHT ═══ -->
+    <div class="view active" id="view-macht">
+      <div id="machtGrid">
+        <div class="macht-card">
+          <h3>⚙️ KERNEL · KIT</h3>
+          <div class="row"><span class="lbl">Status</span><span class="val" id="m-kit-state">—</span></div>
+          <div class="row"><span class="lbl">Version</span><span class="val" id="m-kit-v">—</span></div>
+          <div class="actions"><button id="m-kit-run">RUN</button></div>
+        </div>
+        <div class="macht-card">
+          <h3>📦 GROUP · GROUB</h3>
+          <div class="row"><span class="lbl">Gruppen</span><span class="val" id="m-groub-c">0</span></div>
+          <div class="row"><span class="lbl">Slots</span><span class="val" id="m-groub-s">0/9</span></div>
+          <div class="actions"><button id="m-groub-run">SYNC</button></div>
+        </div>
+        <div class="macht-card">
+          <h3>🔧 PIPELINE · WORK</h3>
+          <div class="row"><span class="lbl">Phase</span><span class="val" id="m-work-p">idle</span></div>
+          <div class="row"><span class="lbl">Tasks</span><span class="val" id="m-work-t">0</span></div>
+          <div class="actions"><button id="m-work-run">RUN</button></div>
+        </div>
+        <div class="macht-card">
+          <h3>⚡ GATE · ZAM</h3>
+          <div class="row"><span class="lbl">Gate</span><span class="val" id="m-zam-state">zu</span></div>
+          <div class="row"><span class="lbl">KlicK</span><span class="val" id="m-zam-k">0</span></div>
+          <div class="actions"><button id="m-zam-run">OPEN</button></div>
+        </div>
+        <div class="macht-card">
+          <h3>🎨 UI · OBERFLÄCHE</h3>
+          <div class="row"><span class="lbl">Panels</span><span class="val" id="m-ui-p">0</span></div>
+          <div class="row"><span class="lbl">Theme</span><span class="val" id="m-ui-theme">dark</span></div>
+          <div class="actions"><button id="m-ui-run">REFRESH</button></div>
+        </div>
+        <div class="macht-card">
+          <h3>💰 WERTE · ECONOMY</h3>
+          <div class="row"><span class="lbl">Score</span><span class="val" id="m-eco-s">0</span></div>
+          <div class="row"><span class="lbl">KlicK</span><span class="val" id="m-eco-k">0</span></div>
+          <div class="actions"><button id="m-eco-run">REFRESH</button></div>
+        </div>
+        <div class="macht-card">
+          <h3>🔬 RITH · ENGINE</h3>
+          <div class="row"><span class="lbl">Rith-Level</span><span class="val" id="m-rith-r">0</span></div>
+          <div class="row"><span class="lbl">Emotion</span><span class="val" id="m-rith-e">—</span></div>
+          <div class="actions"><button id="m-rith-run">EVAL</button></div>
+        </div>
+        <div class="macht-card">
+          <h3>🌐 MASTER · KERNEL</h3>
+          <div class="row"><span class="lbl">Status</span><span class="val" id="m-mk-state">—</span></div>
+          <div class="row"><span class="lbl">Modus</span><span class="val" id="m-mk-mode">—</span></div>
+          <div class="actions"><button id="m-mk-run">START</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ EXPLORER ═══ -->
+    <div class="view" id="view-explorer">
+      <div class="panel-title" style="margin-bottom:6px;">
+        <span>🗂 EXPLORER · ORDNER 1–9</span>
+        <span class="badge" id="explorerState">idle</span>
+      </div>
+      <div id="explorerList"></div>
+    </div>
+
+    <!-- ═══ COMMANDER ═══ -->
+    <div class="view" id="view-commander">
+      <div id="cmdPanel">
+        <div class="cmd-section">
+          <h4>▶ PIPELINE · P0..Pe</h4>
+          <div class="btns">
+            <button data-pipe="P0">P0 · RAW→WACH</button>
+            <button data-pipe="P1">P1 · STRUCTURE</button>
+            <button data-pipe="P2">P2 · VECTOR</button>
+            <button data-pipe="P4">P4 · FUSION</button>
+            <button data-pipe="Pe">Pe · READY</button>
+            <button data-pipe="ALL">▶ RUN ALL</button>
+          </div>
+        </div>
+        <div class="cmd-section" style="border-left-color:#f0d080;">
+          <h4>⚡ GATE · ZaM · OFFER · PACT</h4>
+          <div class="btns">
+            <button data-cmd="offer">OFFER</button>
+            <button data-cmd="pact">PACT</button>
+            <button data-cmd="gateOpen">GATE OPEN</button>
+            <button data-cmd="gateClose">GATE CLOSE</button>
+          </div>
+        </div>
+        <div class="cmd-section" style="border-left-color:#8cf0d0;">
+          <h4>🔘 KLICK · ZACK · SERUM</h4>
+          <div class="btns">
+            <button data-cmd="klick">+1 KlicK</button>
+            <button data-cmd="klick10">+10 KlicK</button>
+            <button data-cmd="klick100">+100 KlicK</button>
+            <button data-cmd="resetKlick">⟲ Reset</button>
+          </div>
+        </div>
+        <div class="cmd-section" style="border-left-color:#6cf;">
+          <h4>🌐 BROADCAST · iki1uc-orbit</h4>
+          <div class="btns">
+            <button data-cmd="hello">HELLO</button>
+            <button data-cmd="state">STATE</button>
+            <button data-cmd="sync">SYNC</button>
+            <button data-cmd="ping">PING</button>
+          </div>
+        </div>
+        <div class="cmd-section" style="border-left-color:#ff8c00;">
+          <h4>🧪 SIMULATION · MAINBOARD</h4>
+          <div class="btns">
+            <button data-cmd="simMainboard">SIMULATE</button>
+            <button data-cmd="simFast">FAST ×10</button>
+            <button data-cmd="rithEval">RITH · EVAL</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PAINT ═══ -->
+    <div class="view" id="view-paint">
+      <div id="paintWrap">
+        <div id="paintTools">
+          <button id="p-t-brush" class="active">✏️ Pinsel</button>
+          <button id="p-t-erase">🧽 Radierer</button>
+          <button id="p-t-clear">🗑 Leeren</button>
+          <span style="margin-left:8px;">Größe</span>
+          <input type="range" id="p-size" min="1" max="40" value="6">
+          <span id="p-size-val">6</span>
+          <span style="margin-left:8px;">Farbe</span>
+          <input type="color" id="p-color" value="#f0d080">
+          <span style="margin-left:auto;font-size:9px;color:#5a7a8a;">KlicK·Pinsel · iki1uc</span>
+        </div>
+        <canvas id="paintCanvas"></canvas>
+      </div>
+    </div>
+
+    <!-- ═══ VIEWER ═══ -->
+    <div class="view" id="view-viewer">
+      <div id="viewerPanel">
+        <div class="panel-title cyan" style="margin-bottom:6px;">
+          <span>🔍 VIEWER · SYSTEM · SCAN</span>
+          <span class="badge" id="viewerBadge">live</span>
+        </div>
+        <pre class="viewer-pre" id="viewerPre"></pre>
+        <div class="panel-title green" style="margin-top:12px;">
+          <span>📡 FILE · LIST (aus dem Repo)</span>
+        </div>
+        <pre class="viewer-pre" id="viewerFiles" style="max-height:200px;overflow:auto;"></pre>
+      </div>
+    </div>
+
+    <!-- ═══ SUITE ═══ -->
+    <div class="view" id="view-suite">
+      <div id="suiteWrap">
+        <iframe id="suiteFrame" src="suite.html" title="Suite"></iframe>
+        <div id="suiteFallback">
+          <div class="panel-title" style="margin-bottom:10px;">
+            <span>📦 SUITE · NICHT GELADEN</span>
+          </div>
+          <p>suite.html wurde nicht gefunden oder wird blockiert (iframe-Sandbox).</p>
+          <p style="margin-top:10px;">Öffne sie separat:</p>
+          <p style="margin-top:6px;">
+            <a href="suite.html" target="_blank" style="color:#6cf;text-decoration:underline;">→ suite.html im neuen Tab</a>
+          </p>
+          <p style="margin-top:14px;color:#5a7a8a;">Move-Tool (work.js) kann hier ebenfalls eingebunden werden.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RECHTS: STATS -->
+  <div class="col" id="right">
+    <div class="panel-title">
+      <span>📊 SYSTEM · STATS</span>
+      <span class="badge" id="statsBadge">live</span>
+    </div>
+    <div class="macht-card" style="margin-bottom:10px;">
+      <div class="row"><span class="lbl">KlicK</span><span class="val gold" id="r-klick">0</span></div>
+      <div class="row"><span class="lbl">ZacK</span><span class="val gold" id="r-zack">0</span></div>
+      <div class="row"><span class="lbl">Score</span><span class="val purple" id="r-score">0</span></div>
+      <div class="row"><span class="lbl">Module</span><span class="val green" id="r-modules">0/6</span></div>
+      <div class="row"><span class="lbl">Rith</span><span class="val green" id="r-rith">0</span></div>
+      <div class="row"><span class="lbl">Uptime</span><span class="val cyan" id="r-uptime">00:00</span></div>
+      <div class="row"><span class="lbl">FPS</span><span class="val" id="r-fps">0</span></div>
+    </div>
+
+    <div class="panel-title green" style="margin-top:12px;">
+      <span>🔗 BROADCAST</span>
+    </div>
+    <div class="macht-card">
+      <div class="row"><span class="lbl">Kanal</span><span class="val cyan">iki1uc-orbit</span></div>
+      <div class="row"><span class="lbl">Storage</span><span class="val cyan">iki1uc-master</span></div>
+      <div class="row"><span class="lbl">Peers</span><span class="val purple" id="r-peers">1</span></div>
+      <div class="row"><span class="lbl">Events</span><span class="val green" id="r-events">0</span></div>
+    </div>
+
+    <div class="panel-title purple" style="margin-top:12px;">
+      <span>🧠 MASTER · LOGIK</span>
+    </div>
+    <div class="macht-card">
+      <div class="row"><span class="lbl">Master</span><span class="val on">index.html</span></div>
+      <div class="row"><span class="lbl">Autostart</span><span class="val on">an</span></div>
+      <div class="row"><span class="lbl">Fallback</span><span class="val on">an</span></div>
+      <div class="row"><span class="lbl">KIT/GROUB/WORK</span><span class="val on">3/9/81</span></div>
+    </div>
 
   </div>
 </div>
 
-<!-- ===== CONTROLS ===== -->
-<div id="controls">
-  <button id="btnReset" class="penthouse">⟲ RESET</button>
-  <button id="btnRotate" class="active">⟳ ROTATE</button>
-  <button id="btnFreq">📡 FREQ</button>
-  <button id="btnScan">🔍 SCAN</button>
-  <button id="btnBoard">♟️ BOARD</button>
-  <button id="btnPenthouse" class="penthouse active">🏠 PENTHOUSE</button>
+<!-- LOG -->
+<div id="logBox">
+  <div class="entry"><span class="time">[init]</span><span class="tag">macht</span><span class="macht">index.html · MASTER · explorercity geladen</span></div>
 </div>
 
-<!-- ===== STATUS ===== -->
-<div id="status">
-  <div class="left">ORT · <span id="ort-state">aktiv</span></div>
-  <div class="center">◉ <span id="center-info">RESPO.synthesis · GEO.TRANS</span></div>
-  <div class="right">SCORE: <span id="score-val">0</span> · TMP: <span id="tmp-val">12e</span></div>
+<!-- FL76 MONITOR -->
+<div id="fl76mon">
+  <div>FL76</div>
+  <div class="num" id="fl76num">76</div>
+  <div style="font-size:8px;color:#4a5a5a;">ms · Kaiser-Fenster</div>
 </div>
 
-<!-- ============================================================ -->
-<!-- SCRIPT – ORT PENTHOUSE ENGINE -->
-<!-- ============================================================ -->
-<script>
-// ============================================================
-// ORT · PENTHOUSE · 360° · 12e · 6D
-// ============================================================
+<footer>
+  <span>⚙️ index.html · <span class="purple">MASTER</span> · explorercity · <span class="cyan">iki1uc</span></span>
+  <span>Module <span class="green" id="ftModules">0/6</span> · KlicK <span class="gold" id="ftKlick">0</span> · Score <span class="purple" id="ftScore">0</span></span>
+  <span>1=Macht 2=Explorer 3=Commander 4=Paint 5=Viewer 6=Suite</span>
+</footer>
 
-// ===== ORT KERNEL =====
-const ORT = {
-  id: "ORT",
-  layer: "Q",
-  type: "target",
-  state: "active",
-  freq: 12,
-  seq: 360,
-  d5: "ORT",
-  vector: {
-    NC2: 128,
-    D6: 14,
-    DYN: 9,
-    ZEN: "stabil",
-    SURE: 2,
-    GEO: "TRANS",
-    RESPO: "synthesis"
-  },
-  compat: ["ROOT", "ACHSE", "TMP", "LAGE", "laTER"]
+<!-- ═══════════════════════════════════════════════════════════════
+     EXTERNE JS-DATEIEN
+     ═══════════════════════════════════════════════════════════════ -->
+<script src="kit.js" onerror="window.___kitErr=1"></script>
+<script src="groub.js" onerror="window.___groubErr=1"></script>
+<script src="work.js" onerror="window.___workErr=1"></script>
+<script src="ZaM.js" onerror="window.___zamErr=1"></script>
+<script src="ui.js" onerror="window.___uiErr=1"></script>
+<script src="economy.js" onerror="window.___ecoErr=1"></script>
+
+<script type="module">
+// ═══════════════════════════════════════════════════════════════════
+// ⚙️ index.html · MASTER · explorercity
+// Regiert über kit.js · groub.js · work.js · ZaM.js · ui.js · economy.js
+// MASTER_KERNEL · RITH-Engine · Autostart · Fallback
+// ═══════════════════════════════════════════════════════════════════
+
+// ─── Dynamischer Import der RITH-Engine (mit Fallback) ───────
+let RITH = null;
+try {
+  RITH = await import('./rith.engine.js');
+  console.log('✅ rith.engine.js geladen');
+} catch(e) {
+  console.warn('⚠️ rith.engine.js nicht gefunden – Fallback aktiv');
+  RITH = {
+    engineState: { rith:0, rev:{score:0, emotion:'NEUTRAL', runs:0}, upd:{changes:0, level:0}, upg:{count:0, level:0} },
+    evaluateFromSegments: (segs) => ({ rith:0, score:0, stufen:[] }),
+    parseSegmentText: (raw) => ({ nodes:0, edges:0, closed:false, norm89:false }),
+  };
+}
+
+// ─── MASTER-STATE ─────────────────────────────────────────────
+const MASTER_KEY = 'iki1uc-master-respo';
+const BC_NAME = 'iki1uc-orbit';
+
+const MACHT = {
+  started: performance.now(),
+  klick: 0, zack: 0, score: 0,
+  events: 0,
+  mods: {},
+  autoChain: [],
+  currentView: 'macht',
+  pipe: 'idle',
+  rith: 0,
+  bc: null,
+  uptime: 0,
+  flRaw: 76, flSmooth: 76, lastFrameT: 0,
+  fps: 0, lastFpsT: 0, frameCount: 0,
 };
 
-// ===== .TMP RÄUME =====
-const TMP_ROOMS = [
-  { id: "bauer.tmp", x: 10, y: 15, label: "♟️" },
-  { id: "dame.tmp", x: 75, y: 10, label: "♕" },
-  { id: "pferd.tmp", x: 85, y: 45, label: "♘" },
-  { id: "tetriz.tmp", x: 55, y: 80, label: "🧩" },
-  { id: "operator.tmp", x: 20, y: 70, label: "⚙️" },
-  { id: "octa.tmp", x: 65, y: 25, label: "◈" },
-  { id: "xarg.tmp", x: 40, y: 40, label: "✖" },
-  { id: "schachac.tmp", x: 30, y: 50, label: "♚" },
-  { id: "arg.tmp", x: 50, y: 55, label: "⚡" },
-  { id: "score.tmp", x: 70, y: 65, label: "📊" },
-  { id: "error.tmp", x: 15, y: 35, label: "⚠️" },
-  { id: "help.tmp", x: 45, y: 20, label: "❓" },
-  { id: "morph.tmp", x: 80, y: 80, label: "🌀" },
-  { id: "fit.tmp", x: 25, y: 25, label: "✅" },
-  { id: "edit.tmp", x: 60, y: 50, label: "✏️" }
+// ─── MODUL-DEFINITION ─────────────────────────────────────────
+const MODULES = [
+  { id: 'kit',     name: 'kit.js',     label: 'KERNEL · STARTIMPULS', global: 'KIT' },
+  { id: 'groub',   name: 'groub.js',   label: 'GROUP · SLOTS 0–9', global: 'GROUB' },
+  { id: 'work',    name: 'work.js',    label: 'PIPELINE · P0..Pe', global: 'WORK' },
+  { id: 'zam',     name: 'ZaM.js',     label: 'GATE · OFFER · PACT', global: 'ZaM' },
+  { id: 'ui',      name: 'ui.js',      label: 'UI · PANELS', global: 'UI' },
+  { id: 'economy', name: 'economy.js', label: 'WERTE · KlicK/ZacK', global: 'ECONOMY' },
 ];
 
-// ===== STATE =====
-let state = {
-  rotate: true,
-  freq: 12,
-  scan: false,
-  board: false,
-  score: 0,
-  tmp: "12e",
-  angle: 0
+// ─── FALLBACK-API ─────────────────────────────────────────────
+function makeFallback(id){
+  return {
+    __fallback: true, id,
+    init(){ return true; },
+    run(){ return { ok:false, reason:'fallback' }; },
+    stop(){ return true; },
+    state(){ return { id, present:false }; },
+    klick(n=1){ MACHT.klick += n; updateStats(); return MACHT.klick; },
+    start(){ return true; },
+  };
+}
+
+// ─── MODULE PRÜFEN ────────────────────────────────────────────
+function detectModules(){
+  MODULES.forEach(m => {
+    const obj = window[m.global];
+    const errFlag = window['___' + m.id + 'Err'];
+    let present = !!(obj && (typeof obj === 'object' || typeof obj === 'function'));
+    MACHT.mods[m.id] = {
+      present, errFlag: !!errFlag,
+      api: present ? obj : makeFallback(m.id),
+      enabled: present || !errFlag,
+    };
+  });
+}
+
+// ─── MASTER_KERNEL (aus dem User-Code) ───────────────────────
+const MASTER_KERNEL = {
+  init:  () => MACHT.mods.kit?.api?.init?.(),
+  build: () => window.ULTRA_KERNEL?.build?.() || { matrix: [[0]] },
+  send:  (m) => window.ULTRA_KERNEL?.sendToALL?.(m),
+  pipe:  () => window.KERNEL?.runRithPipeline?.(),
+  orbit: () => MACHT.mods.zam?.api?.orbit?.(),
+  ui:    () => MACHT.mods.ui?.api?.init?.(window.ECONOMY_INSTANCE),
+  eco:   () => window.ECONOMY_INSTANCE?.setUpdateCallback?.((k,z)=>updateStats()),
+  work:  () => MACHT.mods.work?.api?.start?.(),
+  groub: () => MACHT.mods.groub?.api?.start?.(),
+  start(){
+    this.init();
+    const matrix = this.build();
+    this.send(matrix);
+    this.work();
+    this.groub();
+    this.ui();
+    this.eco();
+    this.orbit();
+    return matrix;
+  }
 };
 
-// ===== DOM REFS =====
-const panorama = document.getElementById('panorama');
-const freqStream = document.getElementById('freqStream');
-const chessFloor = document.getElementById('chessFloor');
-const tmpRooms = document.getElementById('tmpRooms');
+// ─── AUTO-START-KETTE ─────────────────────────────────────────
+const CHAIN = ['kit', 'groub', 'work', 'zam', 'ui', 'economy'];
 
-// ===== BUILD CHESS FLOOR =====
-function buildChessFloor() {
-  chessFloor.innerHTML = '';
-  const pieces = ['♖','♘','♗','♕','♔','♗','♘','♖','Ω'];
-  for (let r = 0; r < 9; r++) {
-    for (let c = 0; c < 9; c++) {
-      const cell = document.createElement('div');
-      const isLight = (r + c) % 2 === 0;
-      const isOmega = c === 8 || r === 8;
-      cell.className = `cell ${isLight ? 'light' : 'dark'} ${isOmega ? 'omega' : ''}`;
-      if (r === 0 && c < 8) cell.textContent = pieces[c];
-      if (r === 8 && c < 8) cell.textContent = pieces[c].toLowerCase();
-      if (c === 8 && r < 8) cell.textContent = 'Ω';
-      if (r === 8 && c === 8) cell.textContent = '◉';
-      cell.style.fontSize = '10px';
-      cell.style.display = 'flex';
-      cell.style.justifyContent = 'center';
-      cell.style.alignItems = 'center';
-      chessFloor.appendChild(cell);
-    }
-  }
-}
-
-// ===== BUILD .TMP RÄUME =====
-function buildTmpRooms() {
-  tmpRooms.innerHTML = '';
-  TMP_ROOMS.forEach(room => {
-    const el = document.createElement('div');
-    el.className = 'tmp-room';
-    el.style.left = room.x + '%';
-    el.style.top = room.y + '%';
-    el.textContent = room.label + ' ' + room.id;
-    el.title = room.id;
-    el.onclick = () => {
-      state.score += 1;
-      document.getElementById('score-val').textContent = state.score;
-      el.style.borderColor = '#ffdd00';
-      el.style.color = '#ffdd00';
-      setTimeout(() => {
-        el.style.borderColor = 'rgba(51,204,255,0.1)';
-        el.style.color = '#6688aa';
-      }, 500);
-    };
-    tmpRooms.appendChild(el);
+function autoStart(){
+  log('▶ AUTO-START · Kette beginnt', 'macht', 'macht');
+  MACHT.autoChain = [];
+  CHAIN.forEach((id, idx) => {
+    setTimeout(() => {
+      const m = MACHT.mods[id];
+      const mod = MODULES.find(x => x.id === id);
+      if (!m) return;
+      try {
+        if (typeof m.api.init === 'function') m.api.init();
+        else if (typeof m.api.start === 'function') m.api.start();
+        MACHT.autoChain.push({ id, ok: true, t: Date.now() });
+        log(`  ↳ ${mod.name} → ${m.present ? 'geladen' : 'fallback'}`, 'auto', m.present ? 'ok' : 'warn');
+        renderAutoChain();
+        renderModules();
+      } catch(e){
+        MACHT.autoChain.push({ id, ok: false, t: Date.now(), err: String(e) });
+        log(`  ✗ ${mod.name} → ${e.message}`, 'auto', 'err');
+        renderAutoChain();
+      }
+    }, idx * 180);
   });
-}
-
-// ===== BUILD FREQ PARTICLES =====
-function buildFreqParticles() {
-  freqStream.innerHTML = '';
-  const count = 30 + Math.floor(Math.random() * 20);
-  for (let i = 0; i < count; i++) {
-    const p = document.createElement('div');
-    p.className = 'freq-particle';
-    p.style.left = Math.random() * 100 + '%';
-    p.style.width = (2 + Math.random() * 4) + 'px';
-    p.style.height = p.style.width;
-    p.style.animationDuration = (3 + Math.random() * 4) + 's';
-    p.style.animationDelay = (Math.random() * 4) + 's';
-    p.style.background = ['#33ccff', '#ffdd00', '#ff66ff', '#88ff44'][Math.floor(Math.random() * 4)];
-    p.style.boxShadow = `0 0 ${10 + Math.random() * 20}px ${p.style.background}`;
-    freqStream.appendChild(p);
-  }
-}
-
-// ===== ROTATE =====
-let rotateInterval = null;
-
-function startRotate() {
-  if (rotateInterval) clearInterval(rotateInterval);
-  let angle = 0;
-  rotateInterval = setInterval(() => {
-    if (state.rotate) {
-      angle += 0.3;
-      panorama.style.transform = `rotateX(5deg) rotateY(${angle}deg)`;
-    }
-  }, 50);
-}
-
-function toggleRotate() {
-  state.rotate = !state.rotate;
-  document.getElementById('btnRotate').classList.toggle('active');
-  if (state.rotate) {
-    document.getElementById('btnRotate').textContent = '⟳ ROTATE';
-  } else {
-    document.getElementById('btnRotate').textContent = '⏸ PAUSE';
-  }
-}
-
-// ===== SCAN =====
-function toggleScan() {
-  state.scan = !state.scan;
-  document.getElementById('btnScan').classList.toggle('active');
-  const scanner = document.querySelector('.scanner');
-  if (state.scan) {
-    scanner.style.borderColor = 'rgba(255,221,0,0.5)';
-    scanner.style.boxShadow = '0 0 60px rgba(255,221,0,0.1)';
-    document.getElementById('btnScan').textContent = '🔍 SCAN·ON';
-    document.getElementById('respo-status').textContent = 'scanning';
-  } else {
-    scanner.style.borderColor = 'rgba(51,204,255,0.15)';
-    scanner.style.boxShadow = 'none';
-    document.getElementById('btnScan').textContent = '🔍 SCAN';
-    document.getElementById('respo-status').textContent = 'synthesis';
-  }
-}
-
-// ===== FREQ =====
-function toggleFreq() {
-  state.freq = state.freq === 12 ? 24 : 12;
-  document.getElementById('btnFreq').classList.toggle('active');
-  document.getElementById('tmp-val').textContent = state.freq + 'e';
-  document.querySelector('.freq').textContent = state.freq + 'e';
-  buildFreqParticles();
-}
-
-// ===== BOARD =====
-function toggleBoard() {
-  state.board = !state.board;
-  document.getElementById('btnBoard').classList.toggle('active');
-  chessFloor.style.opacity = state.board ? '0.8' : '0.4';
-  document.getElementById('btnBoard').textContent = state.board ? '♟️ BOARD·ON' : '♟️ BOARD';
-}
-
-// ===== RESET =====
-function resetPenthouse() {
-  state.score = 0;
-  state.angle = 0;
-  document.getElementById('score-val').textContent = '0';
-  document.getElementById('ort-state').textContent = 'aktiv';
-  document.getElementById('center-info').textContent = 'RESPO.synthesis · GEO.TRANS';
-  panorama.style.transform = 'rotateX(5deg) rotateY(0deg)';
-  // Reset .tmp rooms
-  document.querySelectorAll('.tmp-room').forEach(el => {
-    el.style.borderColor = 'rgba(51,204,255,0.1)';
-    el.style.color = '#6688aa';
-  });
-}
-
-// ===== PENTHOUSE BUTTON =====
-function goPenthouse() {
-  document.getElementById('btnPenthouse').classList.toggle('active');
-  // Fancy effect
-  document.querySelector('.ort-marker').style.animation = 'none';
   setTimeout(() => {
-    document.querySelector('.ort-marker').style.animation = 'markerPulse 2s ease-in-out infinite';
-  }, 10);
-  document.getElementById('center-info').textContent = '🏠 PENTHOUSE · 360°';
+    log('✅ AUTO-START · Kette abgeschlossen', 'macht', 'ok');
+    updateStats();
+  }, CHAIN.length * 180 + 200);
 }
 
-// ===== SCORE UPDATE =====
-function updateScore() {
-  state.score += 0.1;
-  document.getElementById('score-val').textContent = Math.floor(state.score);
-  requestAnimationFrame(updateScore);
+// ─── MODUL-STEUERUNG ──────────────────────────────────────────
+function runModule(id){
+  const m = MACHT.mods[id]; if (!m) return;
+  try {
+    if (typeof m.api.run === 'function') m.api.run();
+    else if (typeof m.api.start === 'function') m.api.start();
+    log(`▶ ${id} · RUN`, 'macht', 'ok');
+    pulse('led' + id.charAt(0).toUpperCase() + id.slice(1));
+  } catch(e){ log(`✗ ${id} · ${e.message}`, 'macht', 'err'); }
+}
+function stopModule(id){
+  const m = MACHT.mods[id]; if (!m) return;
+  try { if (typeof m.api.stop === 'function') m.api.stop(); log(`⏸ ${id} · STOP`, 'macht', 'warn'); }
+  catch(e){ log(`✗ ${id} · ${e.message}`, 'macht', 'err'); }
+}
+function startAll(){ CHAIN.forEach(id => runModule(id)); log('▶ START ALL · 6 Module', 'macht', 'macht'); }
+function stopAll(){ CHAIN.forEach(id => stopModule(id)); log('⏸ STOP ALL · 6 Module', 'macht', 'warn'); }
+
+function pulse(id){
+  const el = document.getElementById(id); if (!el) return;
+  el.classList.add('on');
+  setTimeout(() => el.classList.remove('on'), 400);
 }
 
-// ===== INIT =====
-function init() {
-  buildChessFloor();
-  buildTmpRooms();
-  buildFreqParticles();
-  startRotate();
-
-  // Controls
-  document.getElementById('btnReset').addEventListener('click', resetPenthouse);
-  document.getElementById('btnRotate').addEventListener('click', toggleRotate);
-  document.getElementById('btnFreq').addEventListener('click', toggleFreq);
-  document.getElementById('btnScan').addEventListener('click', toggleScan);
-  document.getElementById('btnBoard').addEventListener('click', toggleBoard);
-  document.getElementById('btnPenthouse').addEventListener('click', goPenthouse);
-
-  // Keyboard
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'r' || e.key === 'R') resetPenthouse();
-    if (e.key === ' ') { e.preventDefault(); toggleRotate(); }
-    if (e.key === 'f' || e.key === 'F') toggleFreq();
-    if (e.key === 's' || e.key === 'S') toggleScan();
-    if (e.key === 'b' || e.key === 'B') toggleBoard();
-    if (e.key === 'p' || e.key === 'P') goPenthouse();
+// ─── RENDER: MODULE ───────────────────────────────────────────
+function renderModules(){
+  const list = document.getElementById('moduleList');
+  list.innerHTML = '';
+  let activeCount = 0;
+  MODULES.forEach(m => {
+    const mod = MACHT.mods[m.id];
+    const present = mod?.present;
+    if (present) activeCount++;
+    const div = document.createElement('div');
+    div.className = 'module-item' + (present ? ' active' : '') + (mod?.errFlag ? ' fail' : '');
+    div.innerHTML = `<span class="dot"></span><span class="name">${m.name}</span>
+      <span class="tag" style="font-size:8px;color:#4a5a5a;">${present ? 'ok' : (mod?.errFlag ? 'fehlt' : 'fallback')}</span>`;
+    div.addEventListener('click', () => {
+      if (mod?.present) runModule(m.id);
+      else log(`⚠ ${m.name} nicht geladen · fallback`, 'macht', 'warn');
+    });
+    list.appendChild(div);
   });
-
-  // Auto score
-  updateScore();
-
-  console.log('🏠 ORT PENTHOUSE geladen');
-  console.log('📡 12e · 6D · 360° · RESPO.synthesis');
-  console.log('♟️ SCHACH.tmp · .tmp-Räume · SCANNER');
-  console.log('⌨️  r=Reset  Space=Rotate  f=Freq  s=Scan  b=Board  p=Penthouse');
+  document.getElementById('modCount').textContent = `${activeCount}/6`;
+  document.getElementById('hdrModules').textContent = `${activeCount}/6`;
+  document.getElementById('ftModules').textContent = `${activeCount}/6`;
+  document.getElementById('r-modules').textContent = `${activeCount}/6`;
+  updateMachtCards();
 }
 
-// DOM Ready
-if (document.readyState === 'loading') {
+// ─── RENDER: AUTO-CHAIN ──────────────────────────────────────
+function renderAutoChain(){
+  const el = document.getElementById('autoChain');
+  if (!el) return;
+  el.innerHTML = '';
+  MACHT.autoChain.forEach(item => {
+    const mod = MODULES.find(x => x.id === item.id);
+    const div = document.createElement('div');
+    div.innerHTML = `${item.ok ? '✅' : '❌'} ${mod?.name || item.id}`;
+    el.appendChild(div);
+  });
+}
+
+// ─── MACHT CARDS ──────────────────────────────────────────────
+function updateMachtCards(){
+  document.getElementById('m-kit-state').textContent = MACHT.mods.kit?.present ? 'geladen' : 'fallback';
+  document.getElementById('m-kit-v').textContent = '1.0';
+  document.getElementById('m-groub-c').textContent = MACHT.mods.groub?.present ? '9' : '0';
+  document.getElementById('m-groub-s').textContent = MACHT.mods.groub?.present ? '9/9' : '0/9';
+  document.getElementById('m-work-p').textContent = MACHT.pipe;
+  document.getElementById('m-work-t').textContent = MACHT.events;
+  document.getElementById('m-zam-state').textContent = MACHT.mods.zam?.present ? 'offen' : 'zu';
+  document.getElementById('m-zam-k').textContent = MACHT.klick;
+  document.getElementById('m-ui-p').textContent = MACHT.mods.ui?.present ? '5' : '0';
+  document.getElementById('m-eco-s').textContent = MACHT.score;
+  document.getElementById('m-eco-k').textContent = MACHT.klick;
+  document.getElementById('m-rith-r').textContent = MACHT.rith;
+  document.getElementById('m-rith-e').textContent = RITH.engineState.rev.emotion;
+  document.getElementById('m-mk-state').textContent = 'bereit';
+  document.getElementById('m-mk-mode').textContent = MACHT.currentView;
+}
+
+// ─── STATS ────────────────────────────────────────────────────
+function updateStats(){
+  document.getElementById('r-klick').textContent = MACHT.klick;
+  document.getElementById('r-zack').textContent = MACHT.zack;
+  document.getElementById('r-score').textContent = MACHT.score;
+  document.getElementById('hdrScore').textContent = MACHT.score;
+  document.getElementById('ftKlick').textContent = MACHT.klick;
+  document.getElementById('ftScore').textContent = MACHT.score;
+  document.getElementById('r-events').textContent = MACHT.events;
+  document.getElementById('hdrRith').textContent = MACHT.rith;
+  document.getElementById('r-rith').textContent = MACHT.rith;
+  updateMachtCards();
+  updateViewer();
+}
+
+// ─── UPTIME ───────────────────────────────────────────────────
+function updateUptime(){
+  const s = Math.floor((performance.now() - MACHT.started) / 1000);
+  const m = Math.floor(s/60);
+  const ss = String(s%60).padStart(2,'0');
+  document.getElementById('r-uptime').textContent = `${String(m).padStart(2,'0')}:${ss}`;
+}
+setInterval(updateUptime, 1000);
+
+// ─── FPS + FL76 ───────────────────────────────────────────────
+function tickFps(now){
+  MACHT.frameCount++;
+  if (now - MACHT.lastFpsT > 1000){
+    MACHT.fps = MACHT.frameCount;
+    MACHT.frameCount = 0;
+    MACHT.lastFpsT = now;
+    document.getElementById('r-fps').textContent = MACHT.fps;
+  }
+  if (MACHT.lastFrameT > 0){
+    MACHT.flRaw = now - MACHT.lastFrameT;
+    MACHT.flSmooth = MACHT.flSmooth * 0.88 + MACHT.flRaw * 0.12;
+  }
+  MACHT.lastFrameT = now;
+  const flEl = document.getElementById('fl76num');
+  const fl = Math.round(MACHT.flSmooth);
+  flEl.textContent = fl;
+  const mon = document.getElementById('fl76mon');
+  if (fl >= 60 && fl <= 90){ mon.className = ''; }
+  else if (fl < 40 || fl > 120){ mon.className = 'outside'; }
+  else { mon.className = 'edge'; }
+  requestAnimationFrame(tickFps);
+}
+
+// ─── EXPLORER ─────────────────────────────────────────────────
+function renderExplorer(){
+  const el = document.getElementById('explorerList');
+  el.innerHTML = '';
+  for (let i=1; i<=9; i++){
+    const div = document.createElement('div');
+    div.className = 'folder-card';
+    div.innerHTML = `<div class="num">${i}</div><div class="name">Ordner ${i}</div>`;
+    div.addEventListener('click', () => {
+      log(`📂 Ordner ${i} · geöffnet`, 'explorer', 'ok');
+      MACHT.events++; updateStats();
+    });
+    el.appendChild(div);
+  }
+}
+
+// ─── COMMANDER ────────────────────────────────────────────────
+document.querySelectorAll('[data-pipe]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const p = btn.dataset.pipe;
+    if (p === 'ALL'){
+      ['P0','P1','P2','P4','Pe'].forEach((step, i) => {
+        setTimeout(() => { MACHT.pipe = step; log(`🔧 Pipeline · ${step}`, 'pipe', 'ok'); updateMachtCards(); }, i * 250);
+      });
+    } else { MACHT.pipe = p; log(`🔧 Pipeline · ${p}`, 'pipe', 'ok'); }
+    MACHT.events++; updateStats();
+  });
+});
+
+document.querySelectorAll('[data-cmd]').forEach(btn => {
+  btn.addEventListener('click', () => handleCmd(btn.dataset.cmd));
+});
+
+function handleCmd(cmd){
+  MACHT.events++;
+  switch(cmd){
+    case 'offer': log('⚡ ZaM · OFFER gesendet', 'cmd', 'macht'); if (MACHT.mods.zam?.api?.offer) try { MACHT.mods.zam.api.offer(); } catch(_){} break;
+    case 'pact': log('⚡ ZaM · PACT gesendet', 'cmd', 'macht'); break;
+    case 'gateOpen': log('🚪 GATE · geöffnet', 'cmd', 'ok'); break;
+    case 'gateClose': log('🚪 GATE · geschlossen', 'cmd', 'warn'); break;
+    case 'klick': MACHT.klick += 1; log('🔘 +1 KlicK', 'cmd'); break;
+    case 'klick10': MACHT.klick += 10; log('🔘 +10 KlicK', 'cmd'); break;
+    case 'klick100': MACHT.klick += 100; log('🔘 +100 KlicK', 'cmd'); break;
+    case 'resetKlick': MACHT.klick = 0; MACHT.zack = 0; log('⟲ KlicK/ZacK zurückgesetzt', 'cmd', 'warn'); break;
+    case 'hello': broadcast('macht:hello', { ts: Date.now() }); break;
+    case 'state': broadcast('macht:state', MACHT); break;
+    case 'sync': broadcast('macht:sync', { klick: MACHT.klick }); break;
+    case 'ping': broadcast('macht:ping', { ts: Date.now() }); break;
+    case 'simMainboard': log('🧪 MAINBOARD · Simulation', 'sim', 'ok'); broadcast('mainboard:run', { source: 'index' }); break;
+    case 'simFast': for(let i=0;i<10;i++) setTimeout(()=>{ MACHT.score += 10; updateStats(); }, i*50); log('🧪 MAINBOARD · FAST ×10', 'sim', 'ok'); break;
+    case 'rithEval': {
+      const segs = ['LOAD → ARBEIT_RUN → MAINBOARD → DONE'];
+      const res = RITH.evaluateFromSegments(segs);
+      MACHT.rith = res.rith;
+      log(`🔬 RITH · rith=${res.rith} score=${res.score}`, 'rith', 'ok');
+      break;
+    }
+  }
+  updateStats();
+}
+
+// ─── BROADCAST ────────────────────────────────────────────────
+function broadcast(type, payload){
+  MACHT.events++;
+  if (MACHT.bc){
+    try { MACHT.bc.postMessage({ type, from: 'index.html', payload, ts: Date.now() }); } catch(_){}
+  }
+  log(`📡 ${type}`, 'broadcast', 'warn');
+}
+
+// ─── PAINT ────────────────────────────────────────────────────
+function setupPaint(){
+  const cv = document.getElementById('paintCanvas');
+  const ctx = cv.getContext('2d');
+  let painting = false, mode = 'brush', size = 6, color = '#f0d080';
+
+  function resizeCanvas(){
+    const r = cv.parentElement.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    cv.width = r.width * dpr;
+    cv.height = (r.height - 42) * dpr;
+    cv.style.width = r.width + 'px';
+    cv.style.height = (r.height - 42) + 'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.fillStyle = '#05070e';
+    ctx.fillRect(0,0,r.width, r.height-42);
+  }
+  window.addEventListener('resize', resizeCanvas);
+  setTimeout(resizeCanvas, 100);
+
+  function pos(e){
+    const r = cv.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
+  function dot(x,y){
+    ctx.beginPath();
+    ctx.arc(x,y,size/2,0,Math.PI*2);
+    ctx.fillStyle = mode === 'erase' ? '#05070e' : color;
+    ctx.fill();
+  }
+
+  cv.addEventListener('pointerdown', e => {
+    painting = true; const p = pos(e); dot(p.x, p.y);
+    cv.setPointerCapture(e.pointerId);
+  });
+  cv.addEventListener('pointermove', e => {
+    if (!painting) return; const p = pos(e); dot(p.x, p.y);
+    MACHT.klick += 0.1;
+  });
+  cv.addEventListener('pointerup', () => { painting = false; MACHT.klick = Math.floor(MACHT.klick) + 1; updateStats(); });
+
+  document.getElementById('p-t-brush').addEventListener('click', e => {
+    mode = 'brush';
+    document.querySelectorAll('#paintTools button').forEach(b => b.classList.remove('active'));
+    e.currentTarget.classList.add('active');
+  });
+  document.getElementById('p-t-erase').addEventListener('click', e => {
+    mode = 'erase';
+    document.querySelectorAll('#paintTools button').forEach(b => b.classList.remove('active'));
+    e.currentTarget.classList.add('active');
+  });
+  document.getElementById('p-t-clear').addEventListener('click', () => {
+    const r = cv.getBoundingClientRect();
+    ctx.fillStyle = '#05070e';
+    ctx.fillRect(0,0,r.width,r.height);
+    log('🗑 Paint · Canvas geleert', 'paint', 'warn');
+  });
+  document.getElementById('p-size').addEventListener('input', e => {
+    size = parseInt(e.target.value, 10);
+    document.getElementById('p-size-val').textContent = size;
+  });
+  document.getElementById('p-color').addEventListener('input', e => { color = e.target.value; });
+}
+
+// ─── VIEWER ───────────────────────────────────────────────────
+function updateViewer(){
+  const pre = document.getElementById('viewerPre'); if (!pre) return;
+  const up = Math.floor((performance.now() - MACHT.started)/1000);
+  pre.innerHTML =
+    `<span class="k">INDEX.HTML</span> · <span class="g">MASTER · aktiv</span>\n` +
+    `<span class="k">UPTIME</span>   · <span class="v">${up}s</span>\n` +
+    `<span class="k">KLICK</span>    · <span class="v">${MACHT.klick}</span>\n` +
+    `<span class="k">ZACK</span>     · <span class="v">${MACHT.zack}</span>\n` +
+    `<span class="k">SCORE</span>    · <span class="v">${MACHT.score}</span>\n` +
+    `<span class="k">RITH</span>     · <span class="v">${MACHT.rith}</span>\n` +
+    `<span class="k">EVENTS</span>   · <span class="v">${MACHT.events}</span>\n` +
+    `<span class="k">MODULE</span>   · <span class="v">${MODULES.map(m => m.name + '=' + (MACHT.mods[m.id]?.present ? 'OK' : 'FB')).join(' · ')}</span>\n` +
+    `<span class="k">PIPE</span>     · <span class="v">${MACHT.pipe}</span>\n` +
+    `<span class="k">VIEW</span>     · <span class="v">${MACHT.currentView}</span>`;
+}
+
+function renderViewerFiles(){
+  const pre = document.getElementById('viewerFiles'); if (!pre) return;
+  const files = ['kit.js','groub.js','work.js','ZaM.js','ui.js','economy.js','rith.engine.js','suite.html','index.html (dieses)'];
+  pre.innerHTML = files.map(f => `  <span class="g">•</span> ${f}`).join('\n');
+}
+
+// ─── TABS / VIEWS ─────────────────────────────────────────────
+function buildTabs(){
+  const tabs = document.getElementById('tabs');
+  const views = [
+    { id: 'macht', label: '⚙️ MAcht' },
+    { id: 'explorer', label: '🗂 EXPLORER' },
+    { id: 'commander', label: '🛰 COMMANDER' },
+    { id: 'paint', label: '🎨 PAINT' },
+    { id: 'viewer', label: '🔍 VIEWER' },
+    { id: 'suite', label: '📦 SUITE' },
+  ];
+  tabs.innerHTML = '';
+  views.forEach(v => {
+    const b = document.createElement('button');
+    b.textContent = v.label; b.dataset.view = v.id;
+    if (v.id === 'macht') b.classList.add('active');
+    b.addEventListener('click', () => switchView(v.id));
+    tabs.appendChild(b);
+  });
+}
+
+function switchView(id){
+  MACHT.currentView = id;
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('active', b.dataset.view === id));
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + id));
+  log(`👁 View · ${id}`, 'view');
+  updateViewer();
+  if (id === 'suite') checkSuite();
+}
+
+// ─── SUITE CHECKS ─────────────────────────────────────────────
+function checkSuite(){
+  const f = document.getElementById('suiteFrame');
+  const fb = document.getElementById('suiteFallback');
+  try {
+    setTimeout(() => {
+      try {
+        if (!f.contentDocument || f.contentDocument.body.innerHTML === ''){ fb.style.display = 'block'; }
+      } catch(_){ fb.style.display = 'none'; }
+    }, 300);
+  } catch(_){ fb.style.display = 'block'; }
+}
+
+// ─── LOG ──────────────────────────────────────────────────────
+function log(msg, tag = 'macht', type = ''){
+  const box = document.getElementById('logBox');
+  const entry = document.createElement('div');
+  entry.className = 'entry';
+  const t = new Date().toLocaleTimeString('de-DE');
+  entry.innerHTML = `<span class="time">[${t}]</span><span class="tag">${tag}</span><span class="${type}">${msg}</span>`;
+  box.appendChild(entry);
+  box.scrollTop = box.scrollHeight;
+  while (box.children.length > 60) box.removeChild(box.firstChild);
+}
+
+// ─── MASTER-KLICK ─────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === ' '){ e.preventDefault(); MACHT.klick++; MACHT.score += 1; updateStats(); }
+  if (e.key === '1') switchView('macht');
+  if (e.key === '2') switchView('explorer');
+  if (e.key === '3') switchView('commander');
+  if (e.key === '4') switchView('paint');
+  if (e.key === '5') switchView('viewer');
+  if (e.key === '6') switchView('suite');
+});
+
+// ─── MACHT BUTTONS ────────────────────────────────────────────
+function bindMachtButtons(){
+  document.getElementById('m-kit-run')?.addEventListener('click', () => runModule('kit'));
+  document.getElementById('m-groub-run')?.addEventListener('click', () => runModule('groub'));
+  document.getElementById('m-work-run')?.addEventListener('click', () => runModule('work'));
+  document.getElementById('m-zam-run')?.addEventListener('click', () => runModule('zam'));
+  document.getElementById('m-ui-run')?.addEventListener('click', () => runModule('ui'));
+  document.getElementById('m-eco-run')?.addEventListener('click', () => runModule('economy'));
+  document.getElementById('m-rith-run')?.addEventListener('click', () => handleCmd('rithEval'));
+  document.getElementById('m-mk-run')?.addEventListener('click', () => { MASTER_KERNEL.start(); log('🧠 MASTER_KERNEL.start()', 'macht', 'macht'); });
+}
+
+document.getElementById('btnStartAll')?.addEventListener('click', startAll);
+document.getElementById('btnStopAll')?.addEventListener('click', stopAll);
+
+// ─── MOBILE TABS ──────────────────────────────────────────────
+document.querySelectorAll('#mobTabs button').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#mobTabs button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('main').dataset.tab = b.dataset.tab;
+  });
+});
+
+// ─── CLOCK ────────────────────────────────────────────────────
+function clock(){ document.getElementById('hdrClock').textContent = '⏱️ ' + new Date().toLocaleTimeString('de-DE'); }
+setInterval(clock, 1000); clock();
+
+// ─── INIT ─────────────────────────────────────────────────────
+function init(){
+  try { MACHT.bc = new BroadcastChannel(BC_NAME); } catch(_){}
+  detectModules();
+  buildTabs();
+  bindMachtButtons();
+  renderExplorer();
+  renderViewerFiles();
+  setupPaint();
+  renderModules();
+  updateStats();
+  requestAnimationFrame(tickFps);
+  autoStart();
+  log('⚙️ index.html · MASTER · geladen', 'init', 'macht');
+  log('▶ Autostart · Kette läuft', 'init', 'ok');
+  log('MASTER_KERNEL verfügbar · window.MASTER_KERNEL.start()', 'init', 'macht');
+  console.log('%c⚙️ index.html · MASTER · explorercity','color:#b388ff;font-weight:bold;font-size:14px;');
+  console.log('Regiert über kit.js · groub.js · work.js · ZaM.js · ui.js · economy.js');
+  console.log('→ window.MACHT · window.MASTER_KERNEL');
+}
+
+// Expose API
+window.MACHT = {
+  state: () => ({
+    klick: MACHT.klick, zack: MACHT.zack, score: MACHT.score,
+    rith: MACHT.rith,
+    events: MACHT.events, view: MACHT.currentView,
+    mods: Object.fromEntries(Object.entries(MACHT.mods).map(([k,v]) => [k, { present: v.present, fallback: !v.present }])),
+    uptime: Math.floor((performance.now() - MACHT.started)/1000),
+  }),
+  run: runModule,
+  stop: stopModule,
+  startAll, stopAll,
+  view: switchView,
+  cmd: handleCmd,
+  log, klick: (n=1) => { MACHT.klick += n; MACHT.score += n; updateStats(); },
+  broadcast,
+  masterKernel: MASTER_KERNEL,
+};
+
+if (document.readyState === 'loading'){
   document.addEventListener('DOMContentLoaded', init);
 } else {
   init();
 }
 </script>
-
 </body>
 </html>
