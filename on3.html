@@ -8,3 +8,1168 @@
   <p>Pipeline läuft. KItriKIme = 1.</p>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚙️ ARBEIT · RESPO · INDEX · 3-9-81 · reFINAL</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --bg:#05070e; --fg:#c0d0d0;
+    --cyan:#6cf; --gold:#f0d080; --purple:#b388ff;
+    --green:#8cf0d0; --red:#ff6666; --orange:#ff8c00;
+    --line:rgba(120,220,150,0.08);
+    --panel:rgba(6,8,16,0.6);
+  }
+  html, body { height:100%; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Consolas','Segoe UI',monospace;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ─────────────────────────────────── */
+  header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(6,8,16,0.85);
+    backdrop-filter: blur(10px);
+    flex-wrap: wrap; gap: 10px;
+    z-index: 5;
+  }
+  header h1 {
+    font-size: 16px; font-weight: 300; letter-spacing: 2px;
+    background: linear-gradient(135deg,#7ee0a0,#d8f0c0,#b388ff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  header h1 small {
+    font-size: 10px; color: #5a7a8a;
+    -webkit-text-fill-color: #5a7a8a;
+    letter-spacing: 1px; margin-left: 8px;
+  }
+  header h1 .final {
+    font-size: 9px; letter-spacing: 2px;
+    color: var(--gold); -webkit-text-fill-color: var(--gold);
+    border: 1px solid rgba(240,208,128,0.35);
+    border-radius: 4px; padding: 1px 5px; margin-left: 6px;
+    vertical-align: middle;
+  }
+  .status-leds {
+    display: flex; gap: 14px; font-size: 10px;
+    color: #6a8a7a; align-items: center; flex-wrap: wrap;
+  }
+  .led {
+    display: inline-block; width: 8px; height: 8px;
+    border-radius: 50%; background: #3a3a3a;
+    margin-right: 5px; transition: 0.3s;
+  }
+  .led.on { background: #8cf0d0; box-shadow: 0 0 6px #8cf0d0; }
+  .led.master { background: #b388ff; box-shadow: 0 0 6px #b388ff; }
+  .led.warn { background: #f0d080; box-shadow: 0 0 6px #f0d080; }
+  .led.pulse { animation: pulse 1.4s infinite; }
+  @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+
+  /* ── MAIN GRID ──────────────────────────────── */
+  #main {
+    flex: 1; display: grid;
+    grid-template-columns: 240px 1fr 260px;
+    overflow: hidden;
+  }
+  .col { padding: 12px; overflow-y: auto; background: var(--panel); }
+  #left  { border-right: 1px solid var(--line); }
+  #right { border-left: 1px solid var(--line); }
+
+  /* Mobile-Tabs */
+  #mobTabs { display: none; }
+  @media (max-width: 900px) {
+    #main { grid-template-columns: 1fr; }
+    #main .col { display: none; }
+    #main[data-tab="left"]  #left  { display: block; }
+    #main[data-tab="right"] #right { display: block; }
+    #main[data-tab="orbit"] #center{ display: flex; }
+    #left, #right { border: none; }
+    #mobTabs {
+      display: flex; gap: 4px; padding: 6px 10px;
+      background: rgba(6,8,16,0.85);
+      border-bottom: 1px solid var(--line);
+    }
+    #mobTabs button {
+      flex: 1; background: rgba(20,20,30,0.6);
+      border: 1px solid rgba(179,136,255,0.2);
+      color: var(--purple); padding: 6px 0; border-radius: 6px;
+      font-family: inherit; font-size: 10px; cursor: pointer;
+    }
+    #mobTabs button.active {
+      background: rgba(179,136,255,0.2); color: #fff;
+      border-color: var(--purple);
+    }
+  }
+
+  .panel-title {
+    font-size: 10px; color: var(--gold); letter-spacing: 1.5px;
+    border-bottom: 1px solid rgba(255,215,0,0.08);
+    padding-bottom: 5px; margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .panel-title .badge { font-size: 8px; color: #5a7a8a; font-weight: 400; }
+
+  /* ── MODUL-LISTE ────────────────────────────── */
+  .module-item {
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 6px; border-radius: 5px;
+    font-size: 10px; color: #8aa8a0; cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: 0.15s; margin-bottom: 2px;
+  }
+  .module-item:hover {
+    background: rgba(120,220,150,0.04); color: #d0e8e0;
+    border-left-color: #7ee0a0;
+  }
+  .module-item.active {
+    background: rgba(120,220,150,0.06);
+    border-left-color: var(--green); color: #d0e8e0;
+  }
+  .module-item .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #3a3a3a; flex-shrink: 0; transition: 0.3s;
+  }
+  .module-item.active .dot {
+    background: var(--green); box-shadow: 0 0 6px var(--green);
+  }
+  .module-item .name { flex: 1; }
+  .module-item .size { font-size: 8px; color: #4a5a5a; }
+
+  /* ── ORBIT ──────────────────────────────────── */
+  #center {
+    display: flex; flex-direction: column; padding: 12px;
+    position: relative; overflow: hidden;
+  }
+  #orbitWrap {
+    flex: 1; position: relative;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 200px;
+  }
+  #orbitCanvas {
+    background: transparent; display: block;
+    width: 100%; height: 100%;
+  }
+  #orbitOverlay {
+    position: absolute; top: 12px; left: 12px;
+    font-size: 10px; color: #6a8a7a;
+    line-height: 1.6; pointer-events: none;
+  }
+  #orbitOverlay .v { color: #a0e0b0; font-weight: bold; }
+  #orbitOverlay .gold { color: var(--gold); }
+  #orbitOverlay .purple { color: var(--purple); }
+
+  /* ── ARBEIT / RESPO PANEL ──────────────────── */
+  .arbeit-panel {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(120,220,150,0.04);
+    border-radius: 10px; padding: 10px 12px;
+    margin-bottom: 10px; font-size: 10px;
+  }
+  .arbeit-panel .head {
+    color: var(--gold); font-weight: bold; letter-spacing: 1px;
+    border-bottom: 1px solid rgba(255,215,0,0.06);
+    padding-bottom: 4px; margin-bottom: 6px;
+    display: flex; justify-content: space-between;
+  }
+  .metric-row {
+    display: flex; justify-content: space-between;
+    padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.02);
+    font-size: 10px;
+  }
+  .metric-row .label { color: #8aa8a0; }
+  .metric-row .val { font-weight: bold; color: #d0e8e0; }
+  .metric-row .val.gold { color: var(--gold); }
+  .metric-row .val.green { color: var(--green); }
+  .metric-row .val.purple { color: var(--purple); }
+  .metric-row .val.red { color: var(--red); }
+
+  .prog-bar {
+    width: 100%; height: 6px;
+    background: rgba(20,28,20,0.6);
+    border-radius: 3px; overflow: hidden; margin-top: 4px;
+  }
+  .prog-bar .fill {
+    height: 100%;
+    background: linear-gradient(90deg, #7ee0a0, #b388ff);
+    border-radius: 3px; transition: width 0.4s;
+  }
+
+  /* ── BUTTONS ───────────────────────────────── */
+  .me2-buttons {
+    display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;
+  }
+  .me2-buttons button {
+    flex: 1; min-width: 55px;
+    background: rgba(20,20,30,0.6);
+    border: 1px solid rgba(179,136,255,0.2);
+    color: var(--purple); padding: 4px 0;
+    border-radius: 5px; font-family: inherit;
+    font-size: 9px; cursor: pointer; transition: 0.2s;
+  }
+  .me2-buttons button:hover { background: rgba(179,136,255,0.1); }
+  .me2-buttons button.active {
+    background: rgba(179,136,255,0.2);
+    color: #fff; border-color: var(--purple);
+  }
+
+  /* ── HDF-BAR ───────────────────────────────── */
+  #hdfBar {
+    display: flex; gap: 8px; align-items: center;
+    padding: 8px 12px; background: rgba(0,0,0,0.4);
+    border-top: 1px solid var(--line);
+    font-size: 10px; flex-wrap: wrap;
+  }
+  #hdfBar label { color: #6a8a7a; letter-spacing: 1px; }
+  #hdfBar input {
+    background: rgba(20,28,20,0.6);
+    border: 1px solid rgba(120,220,150,0.15);
+    border-radius: 6px; padding: 4px 10px;
+    color: #d0e8e0; font-family: inherit;
+    font-size: 10px; min-width: 180px; flex: 1;
+  }
+  #hdfBar button {
+    background: rgba(20,28,20,0.6);
+    border: 1px solid rgba(120,220,150,0.2);
+    border-radius: 6px; padding: 4px 14px;
+    color: #d0e8e0; font-family: inherit;
+    font-size: 10px; cursor: pointer; transition: 0.2s;
+  }
+  #hdfBar button:hover { border-color: #7ee0a0; color: #fff; }
+  #hdfOut { color: var(--green); font-size: 9px; }
+
+  /* ── LOG ───────────────────────────────────── */
+  #logBar {
+    display: flex; gap: 4px; align-items: center;
+    padding: 4px 12px; background: rgba(0,0,0,0.55);
+    border-top: 1px solid var(--line);
+    font-size: 9px;
+  }
+  #logBar span { color: #5a7a8a; letter-spacing: 1px; margin-right: 6px; }
+  #logBar button {
+    background: transparent; border: 1px solid rgba(120,220,150,0.12);
+    color: #8aa8a0; border-radius: 4px; padding: 1px 8px;
+    font-family: inherit; font-size: 9px; cursor: pointer;
+  }
+  #logBar button.active {
+    color: #fff; border-color: var(--green);
+    background: rgba(120,220,150,0.08);
+  }
+  #logBox {
+    max-height: 110px; overflow-y: auto;
+    padding: 8px 12px; background: rgba(0,0,0,0.5);
+    border-top: 1px solid var(--line);
+    font-size: 9px; line-height: 1.5; color: #8ab0c0;
+  }
+  #logBox .entry {
+    padding: 1px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+  }
+  #logBox .time { color: #3a4a5a; margin-right: 6px; }
+  #logBox .tag  { color: var(--cyan); margin-right: 4px; }
+  #logBox .ok   { color: var(--green); }
+  #logBox .warn { color: var(--gold); }
+  #logBox .err  { color: var(--red); }
+  #logBox.filter-ok    .entry:not(.is-ok)    { display: none; }
+  #logBox.filter-warn  .entry:not(.is-warn)  { display: none; }
+  #logBox.filter-err   .entry:not(.is-err)   { display: none; }
+
+  /* ── FOOTER ────────────────────────────────── */
+  footer {
+    padding: 6px 16px; background: rgba(6,8,16,0.85);
+    border-top: 1px solid var(--line);
+    font-size: 9px; color: #445555;
+    display: flex; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px;
+  }
+  footer .gold   { color: var(--gold); }
+  footer .purple { color: var(--purple); }
+  footer .green  { color: var(--green); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚙️ ARBEIT · RESPO · INDEX
+    <small>brain · 3-9-81 · working state</small>
+    <span class="final">reFINAL</span>
+  </h1>
+  <div class="status-leds">
+    <span><span class="led" id="ledMaster"></span>MASTER</span>
+    <span><span class="led on pulse" id="ledArbeit"></span>ARBEIT</span>
+    <span>Respo <span id="hdrRespo" style="color:#8cf0d0;font-weight:bold;">0%</span></span>
+    <span>KlicK <span id="hdrKlick" style="color:#f0d080;font-weight:bold;">0</span></span>
+    <span>ZacK  <span id="hdrZack"  style="color:#f0d080;font-weight:bold;">0</span></span>
+    <span id="hdrClock" style="color:#4a5a5a;">⏱️ --:--</span>
+  </div>
+</header>
+
+<div id="mobTabs">
+  <button data-tab="left">🧩 Module</button>
+  <button data-tab="orbit" class="active">🌀 Orbit</button>
+  <button data-tab="right">🎛 Steuerung</button>
+</div>
+
+<div id="main" data-tab="orbit">
+
+  <!-- LINKS -->
+  <div class="col" id="left">
+    <div class="panel-title">
+      <span>🧩 BRAIN · MODULE</span>
+      <span class="badge" id="modCount">0/15</span>
+    </div>
+    <div id="moduleList"></div>
+
+    <div class="panel-title" style="margin-top:14px;">
+      <span>🌀 AXIOM · MODI</span>
+    </div>
+    <div class="me2-buttons">
+      <button data-mode="IQQ" class="active">IQQ</button>
+      <button data-mode="OCTA">OCTA</button>
+      <button data-mode="A81">A81</button>
+    </div>
+
+    <div class="panel-title" style="margin-top:14px;">
+      <span>🎛 FEEDBACK</span>
+    </div>
+    <div class="me2-buttons">
+      <button id="btnSound">🔇 TON</button>
+      <button id="btnAuto">⏯ AUTO</button>
+    </div>
+  </div>
+
+  <!-- MITTE -->
+  <div id="center">
+    <div id="orbitWrap">
+      <canvas id="orbitCanvas"></canvas>
+      <div id="orbitOverlay">
+        <div>🌀 <span class="v" id="ovMode">IQQ</span> · Tick <span class="v gold" id="ovTick">0</span></div>
+        <div>◎ Symbol <span class="v purple" id="ovSymbol">◉</span> · #<span class="v" id="ovIndex">0</span></div>
+        <div>⚡ Arbeit <span class="v gold" id="ovArbeit">0%</span></div>
+      </div>
+    </div>
+
+    <div class="arbeit-panel" style="margin-top:10px;">
+      <div class="head">
+        <span>📊 ARBEIT · RESPO</span>
+        <span id="arbeitBadge">bereit</span>
+      </div>
+      <div class="metric-row"><span class="label">Fortschritt</span><span class="val gold" id="mpProg">0%</span></div>
+      <div class="prog-bar"><div class="fill" id="mpBar" style="width:0%;"></div></div>
+      <div class="metric-row" style="margin-top:6px;"><span class="label">Aktive Module</span><span class="val green" id="mpActive">0</span></div>
+      <div class="metric-row"><span class="label">Respo-Score</span><span class="val purple" id="mpRespo">0.00</span></div>
+      <div class="metric-row"><span class="label">4× Genauigkeit</span><span class="val" id="mpAcc4x">–</span></div>
+      <div class="metric-row"><span class="label">2× Prüfbarkeit</span><span class="val" id="mpVer2x">–</span></div>
+    </div>
+  </div>
+
+  <!-- RECHTS -->
+  <div class="col" id="right">
+
+    <div class="panel-title">
+      <span>👁️ 2me · MASTER</span>
+      <span class="badge" id="me2Role">allow</span>
+    </div>
+    <div class="me2-buttons">
+      <button id="btnAllow" class="active">ALLOW</button>
+      <button id="btnBoost">BOOST</button>
+      <button id="btnSlow">SLOW</button>
+      <button id="btnOverride">OVERRIDE</button>
+    </div>
+
+    <div class="panel-title" style="margin-top:12px;">
+      <span>⚡ ZaM · SEQUENZ</span>
+      <span class="badge" id="zamState">idle</span>
+    </div>
+    <div class="me2-buttons">
+      <button id="btnZamRun">▶ RUN</button>
+      <button id="btnZamStop">⏸ STOP</button>
+    </div>
+    <div class="metric-row" style="margin-top:6px;">
+      <span class="label">Letzte Sequenz</span>
+      <span class="val" id="zamLast">–</span>
+    </div>
+
+    <div class="panel-title" style="margin-top:12px;">
+      <span>🔘 KLICK · ZACK</span>
+      <span class="badge" id="klickState">idle</span>
+    </div>
+    <div class="metric-row"><span class="label">KlicK</span><span class="val gold" id="klickCount">0</span></div>
+    <div class="metric-row"><span class="label">ZacK</span><span class="val gold" id="zackCount">0</span></div>
+    <div class="metric-row"><span class="label">Bis ZacK</span><span class="val" id="klickRemain">100</span></div>
+    <div class="me2-buttons">
+      <button id="btnKlick">🔘 KLICK</button>
+      <button id="btnZackReset">⟲</button>
+    </div>
+
+    <div class="panel-title" style="margin-top:12px;">
+      <span>🧪 MAINBOARD</span>
+      <span class="badge" id="mbState">idle</span>
+    </div>
+    <div class="me2-buttons">
+      <button id="btnMbRun">▶ SIM</button>
+    </div>
+
+    <div class="panel-title" style="margin-top:12px;">
+      <span>🔒 ZOLL</span>
+      <span class="badge" id="zollState">offen</span>
+    </div>
+    <div class="metric-row">
+      <span class="label">Status</span>
+      <span class="val green" id="zollStatus">offen</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- HDF-BAR -->
+<div id="hdfBar">
+  <label>📖 HDF‑RESOLVE</label>
+  <input id="hdfInput" placeholder="#d / #e / #axiom / #81 / #zauber.6" value="#d" autocomplete="off">
+  <button id="hdfBtn">RESOLVE</button>
+  <span id="hdfOut">–</span>
+</div>
+
+<!-- LOG-BAR -->
+<div id="logBar">
+  <span>LOG</span>
+  <button data-f="all"  class="active">alle</button>
+  <button data-f="ok">ok</button>
+  <button data-f="warn">warn</button>
+  <button data-f="err">err</button>
+</div>
+<div id="logBox">
+  <div class="entry is-ok"><span class="time">[init]</span><span class="tag">arbeit</span><span class="ok">Arbeit-Respo-Index geladen · brain/ · 15 Module · reFINAL</span></div>
+</div>
+
+<footer>
+  <span>⚙️ ARBEIT · <span class="gold">RESPO</span> · INDEX · <span class="purple">3-9-81</span></span>
+  <span>🧩 Module <span class="green" id="ftMod">0</span> · KlicK <span class="green" id="ftKlick">0</span> · ZacK <span class="green" id="ftZack">0</span></span>
+  <span>Space = KlicK · R = Orbit · Shift+R = KlicK-Reset · Z = ZaM · 1/2/3 = Modus · M = MAINBOARD</span>
+</footer>
+
+<script>
+"use strict";
+// ═══════════════════════════════════════════════════════════════════
+// ARBEIT · RESPO · INDEX  —  brain/  ·  reFINAL
+// Kompatibel: KlicK · ZaM · 2me · respo-master.js · admin-pult · STAGE
+// ═══════════════════════════════════════════════════════════════════
+
+// ─── 1. KOMPATIBILITÄTS-LAYER ───────────────────────────────────
+const MASTER_KEY = 'iki1uc-master-respo';
+const BC_NAME    = 'iki1uc-orbit';
+
+let masterChannel = null;
+let isMasterConnected = false;
+
+const localMaster = {
+  stations: {},
+  klick: 0, zack: 0,
+  zam: 'idle',
+  zamCount: 0,
+  zoll: 'offen',
+  me2: { allow: true, boost: false, slow: false, override: false },
+  lastUpdate: Date.now(),
+};
+
+try {
+  const stored = localStorage.getItem(MASTER_KEY);
+  if (stored) Object.assign(localMaster, JSON.parse(stored));
+} catch (_) {}
+
+try {
+  masterChannel = new BroadcastChannel(BC_NAME);
+  masterChannel.onmessage = (ev) => {
+    const d = ev.data;
+    if (!d || !d.type) return;
+
+    if (d.type === 'master:state' && d.payload) {
+      Object.assign(localMaster, d.payload);
+      isMasterConnected = true;
+      updateAll();
+    }
+    if (d.type === 'me2:rule' && d.payload) {
+      Object.assign(localMaster.me2, d.payload);
+      updateAll(); syncMe2Buttons();
+      log(`2me: ${Object.entries(d.payload).map(([k,v])=>k+'='+v).join(', ')}`, '2me', 'ok');
+    }
+    if (d.type === 'zam:run') {
+      localMaster.zam = 'run'; updateAll();
+      log(`ZaM.run(${d.payload?.sequence?.join('→') || '?'})`, 'ZaM', 'ok');
+      if (d.payload?.steps) runZamSequence(d.payload.steps);
+    }
+    if (d.type === 'klick:step' && d.payload) {
+      localMaster.klick = d.payload.klick ?? localMaster.klick; updateAll();
+    }
+    if (d.type === 'klick:zack' && d.payload) {
+      localMaster.zack = d.payload.zack ?? localMaster.zack; updateAll();
+      log(`🎉 ZacK ${localMaster.zack}`, 'ZaM', 'ok');
+    }
+    if (d.type === 'mainboard:done' && d.payload) {
+      applyMainboardResult(d.payload, 'BC');
+    }
+  };
+} catch (e) { console.warn('BC fehlt:', e); }
+
+function persistMaster() {
+  try { localStorage.setItem(MASTER_KEY, JSON.stringify(localMaster)); } catch (_) {}
+}
+function sendToMaster(type, payload) {
+  localMaster.lastUpdate = Date.now();
+  persistMaster();
+  if (masterChannel) {
+    try { masterChannel.postMessage({ type, from: 'ARBEIT', payload, ts: Date.now() }); } catch (_) {}
+  }
+}
+
+// ─── 2. MODULE ──────────────────────────────────────────────────
+const MODULES = [
+  { id:'NC_figur.js',   name:'NC_figur',   desc:'Form-Engine' },
+  { id:'NC_kraft.js',   name:'NC_kraft',   desc:'Kraft-Modell' },
+  { id:'NC_space.js',   name:'NC_space',   desc:'Raum-Modell' },
+  { id:'NC_time.js',    name:'NC_time',    desc:'Zeit-Modell' },
+  { id:'OS_CORE.js',    name:'OS_CORE',    desc:'Grundlogik' },
+  { id:'axiom.map.js',  name:'axiom.map',  desc:'Symbol-Mapping' },
+  { id:'coord.js',      name:'coord',      desc:'Koordinaten' },
+  { id:'dreieck.js',    name:'dreieck',    desc:'Geometrie' },
+  { id:'index.html',    name:'index',      desc:'UI-Einstieg', self:true },
+  { id:'m.md',          name:'m.md',       desc:'Notizen' },
+  { id:'muss.ready',    name:'muss.ready', desc:'Ready-Signal' },
+  { id:'resolver.js',   name:'resolver',   desc:'Zustandsauflösung' },
+  { id:'respo.js',      name:'respo',      desc:'Respo-Kern' },
+  { id:'router.js',     name:'router',     desc:'Modul-Routing' },
+  { id:'vec.js',        name:'vec',        desc:'Vektor-Mathe' },
+];
+
+const moduleState = MODULES.map(m => ({ ...m, active: !!m.self }));
+
+function renderModules() {
+  const list = document.getElementById('moduleList');
+  list.innerHTML = '';
+  let activeCount = 0;
+  moduleState.forEach((m, idx) => {
+    if (m.active) activeCount++;
+    const div = document.createElement('div');
+    div.className = 'module-item' + (m.active ? ' active' : '');
+    div.innerHTML = `
+      <span class="dot"></span>
+      <span class="name">${m.name}</span>
+      <span class="size">${m.desc}</span>
+    `;
+    div.addEventListener('click', () => toggleModule(idx));
+    list.appendChild(div);
+  });
+  document.getElementById('modCount').textContent = `${activeCount}/${MODULES.length}`;
+  document.getElementById('ftMod').textContent = activeCount;
+  return activeCount;
+}
+
+function toggleModule(idx) {
+  const m = moduleState[idx];
+  m.active = !m.active;
+  const count = renderModules();
+  sendToMaster('arbeit:module', { id: m.id, active: m.active, count });
+  log(`Modul ${m.name} → ${m.active ? 'aktiv' : 'inaktiv'}`, 'arbeit', m.active ? 'ok' : 'warn');
+  updateArbeitProgress();
+}
+
+// ─── 3. ORBIT ───────────────────────────────────────────────────
+const ORBIT = ["◉","↗","↘","3","9","↘","↗","◎","↗","↘","3","9","↘","↗",
+               "◎","↗","↘","81","◆","↘","↗","△","↗","↘","27","▣","↘","↗","3","↺"];
+const AXIOM_MAP = {
+  '3':'IQQ','9':'IQQ',
+  '◎':'OCTA','◉':'OCTA','◆':'OCTA','△':'OCTA','▣':'OCTA','↺':'OCTA',
+  '81':'A81','27':'A81','243':'A81','729':'A81'
+};
+
+const orbitState = {
+  index: 0, history: [], tick: 0,
+  mode: 'IQQ', running: true, speed: 3,
+  lastFrame: 0, accumulator: 0,
+  ripples: [], // KlicK-Feedback
+};
+
+const canvas = document.getElementById('orbitCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  const wrap = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  canvas.width  = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width  = w + 'px';
+  canvas.style.height = h + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resizeCanvas);
+if (window.ResizeObserver) {
+  new ResizeObserver(resizeCanvas).observe(document.getElementById('orbitWrap'));
+}
+
+function drawOrbit() {
+  const w = canvas.width  / (window.devicePixelRatio || 1);
+  const h = canvas.height / (window.devicePixelRatio || 1);
+  ctx.clearRect(0, 0, w, h);
+
+  const cx = w / 2, cy = h / 2;
+  const R = Math.min(w, h) * 0.32;
+
+  // Fortschritt
+  const activeCount = moduleState.filter(m => m.active).length;
+  const progress = activeCount / MODULES.length;
+
+  // Hintergrund-Ring
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(120,220,150,0.08)';
+  ctx.lineWidth = 2; ctx.stroke();
+
+  // Fortschritts-Bogen
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, -Math.PI/2, -Math.PI/2 + progress * Math.PI * 2);
+  ctx.strokeStyle = 'rgba(179,136,255,0.6)';
+  ctx.lineWidth = 3; ctx.stroke();
+
+  // Innerer Ring
+  ctx.beginPath();
+  ctx.arc(cx, cy, R * 0.7, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(120,220,150,0.05)';
+  ctx.lineWidth = 1; ctx.stroke();
+
+  // Orbit-Symbole
+  const numSym = 8;
+  for (let i = 0; i < numSym; i++) {
+    const symIdx = (orbitState.index + i * 4) % ORBIT.length;
+    const angle = (i / numSym) * Math.PI * 2 + orbitState.tick * 0.005;
+    const x = cx + Math.cos(angle) * R;
+    const y = cy + Math.sin(angle) * R;
+    const sym = ORBIT[symIdx];
+    const isMain = i === 0;
+    ctx.fillStyle = isMain ? '#6cf' : 'rgba(108,204,255,0.35)';
+    ctx.font = (isMain ? 22 : 14) + 'px Consolas';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    if (isMain) { ctx.shadowColor = '#6cf'; ctx.shadowBlur = 14; }
+    ctx.fillText(sym, x, y);
+    ctx.shadowBlur = 0;
+  }
+
+  // KlicK-Ripples
+  for (let i = orbitState.ripples.length - 1; i >= 0; i--) {
+    const r = orbitState.ripples[i];
+    r.age++;
+    const t = r.age / r.life;
+    if (t >= 1) { orbitState.ripples.splice(i, 1); continue; }
+    ctx.beginPath();
+    ctx.arc(r.x, r.y, r.maxR * t, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(240,208,128,${(1 - t) * 0.6})`;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  // Kern
+  const pulse = 1 + 0.08 * Math.sin(orbitState.tick * 0.06);
+  const coreR = R * 0.35 * pulse;
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
+  grad.addColorStop(0,   'rgba(179,136,255,0.7)');
+  grad.addColorStop(0.6, 'rgba(179,136,255,0.25)');
+  grad.addColorStop(1,   'rgba(179,136,255,0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.arc(cx, cy, coreR, 0, Math.PI * 2); ctx.fill();
+
+  // Mittiges Symbol
+  const symbol = ORBIT[orbitState.index];
+  ctx.fillStyle = '#d0e8e0';
+  ctx.font = 'bold 32px Consolas';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.shadowColor = '#b388ff'; ctx.shadowBlur = 20;
+  ctx.fillText(symbol, cx, cy);
+  ctx.shadowBlur = 0;
+
+  // Info
+  ctx.fillStyle = 'rgba(90,122,138,0.7)';
+  ctx.font = '10px Consolas';
+  ctx.textAlign = 'center';
+  ctx.fillText(`#${orbitState.index} · ${AXIOM_MAP[symbol] || '—'} · ${orbitState.mode}`, cx, cy + R + 26);
+}
+
+function spawnRipple(x, y) {
+  orbitState.ripples.push({ x, y, age: 0, life: 30, maxR: 60 });
+}
+
+// ─── 4. LOOP ────────────────────────────────────────────────────
+const STEP_BASE = 800, STEP_FACTOR = 60, STEP_MIN = 100;
+function loop(now) {
+  if (!orbitState.lastFrame) orbitState.lastFrame = now;
+  const delta = now - orbitState.lastFrame;
+  orbitState.lastFrame = now;
+
+  if (orbitState.running && localMaster.me2.allow) {
+    orbitState.accumulator += delta;
+    const stepTime = Math.max(STEP_MIN, STEP_BASE - orbitState.speed * STEP_FACTOR);
+    let guard = 0;
+    while (orbitState.accumulator >= stepTime && guard < 8) {
+      stepOrbit();
+      orbitState.accumulator -= stepTime;
+      guard++;
+    }
+  }
+
+  orbitState.tick++;
+  drawOrbit();
+  requestAnimationFrame(loop);
+}
+
+function stepOrbit() {
+  orbitState.index = (orbitState.index + 1) % ORBIT.length;
+  orbitState.history.push(orbitState.index);
+  if (orbitState.history.length > 5) orbitState.history.shift();
+  orbitState.tick++;
+
+  document.getElementById('ovIndex').textContent  = orbitState.index;
+  document.getElementById('ovSymbol').textContent = ORBIT[orbitState.index];
+  document.getElementById('ovTick').textContent   = orbitState.tick;
+
+  sendToMaster('arbeit:step', {
+    index: orbitState.index,
+    symbol: ORBIT[orbitState.index],
+    axiom: AXIOM_MAP[ORBIT[orbitState.index]] || '—',
+    mode: orbitState.mode,
+    tick: orbitState.tick,
+  });
+}
+
+// ─── 5. KLICK-ZÄHLER ────────────────────────────────────────────
+let klickCounter = localMaster.klick || 0;
+let zackCounter = localMaster.zack || 0;
+
+function addKlick(n = 1) {
+  if (!localMaster.me2.allow) {
+    log('⛔ KlicK blockiert – Zoll geschlossen', 'Zoll', 'err');
+    beep(220, 0.06);
+    return;
+  }
+  const mult = localMaster.me2.boost ? 2 : (localMaster.me2.slow ? 0.5 : 1);
+  klickCounter += n * mult;
+  beep(660, 0.03);
+  if (klickCounter >= 100) {
+    const gained = Math.floor(klickCounter / 100);
+    klickCounter = klickCounter % 100;
+    zackCounter += gained;
+    log(`🎉 100 KlicK → ${gained} ZacK (total ${zackCounter})`, 'ZaM', 'ok');
+    beep(880, 0.12);
+    sendToMaster('klick:zack', { zack: zackCounter, fromKlick: 100 });
+  }
+  localMaster.klick = klickCounter;
+  localMaster.zack  = zackCounter;
+  persistMaster();
+  updateAll();
+  sendToMaster('klick:step', { klick: klickCounter, zack: zackCounter });
+}
+
+function resetKlick() {
+  klickCounter = 0; zackCounter = 0;
+  localMaster.klick = 0; localMaster.zack = 0;
+  persistMaster(); updateAll();
+  log('⟲ KlicK/ZacK zurückgesetzt', 'KlicK', 'warn');
+}
+
+// ─── 6. ZaM ─────────────────────────────────────────────────────
+function runZamSequence(steps) {
+  log(`ZaM-Sequenz: ${steps.join(' → ')}`, 'ZaM', 'ok');
+  localMaster.zam = 'run';
+  localMaster.zamCount = (localMaster.zamCount || 0) + 1;
+  updateAll();
+  let i = 0;
+  const next = () => {
+    if (localMaster.zam !== 'run') {
+      log('⏸ ZaM abgebrochen', 'ZaM', 'warn');
+      return;
+    }
+    if (i >= steps.length) {
+      localMaster.zam = 'done'; updateAll();
+      sendToMaster('zam:done', { sequence: steps });
+      log(`✅ ZaM-Sequenz fertig (${steps.length} Schritte)`, 'ZaM', 'ok');
+      return;
+    }
+    const step = steps[i++];
+    log(`  ↳ ${step}`, 'ZaM');
+    stepOrbit();
+    addKlick(1);
+    if (String(step).toUpperCase().includes('MAINBOARD')) {
+      sendToMaster('mainboard:run', { source: 'ZaM' });
+      simulateMainboard('ZaM');
+    }
+    setTimeout(next, 320);
+  };
+  next();
+}
+
+// ─── 7. 2me ─────────────────────────────────────────────────────
+function syncMe2Buttons() {
+  document.getElementById('btnAllow').classList.toggle('active', localMaster.me2.allow);
+  document.getElementById('btnBoost').classList.toggle('active', localMaster.me2.boost);
+  document.getElementById('btnSlow').classList.toggle('active', localMaster.me2.slow);
+  document.getElementById('btnOverride').classList.toggle('active', localMaster.me2.override);
+
+  const roles = [];
+  if (localMaster.me2.allow)    roles.push('ALLOW');
+  if (localMaster.me2.boost)    roles.push('BOOST');
+  if (localMaster.me2.slow)     roles.push('SLOW');
+  if (localMaster.me2.override) roles.push('OVERRIDE');
+  document.getElementById('me2Role').textContent = roles.join('·') || 'IDLE';
+
+  document.getElementById('zollState').textContent  = localMaster.me2.allow ? 'offen' : 'blockiert';
+  document.getElementById('zollStatus').textContent = localMaster.me2.allow ? 'offen' : 'blockiert';
+  document.getElementById('zollStatus').className   = 'val ' + (localMaster.me2.allow ? 'green' : 'red');
+}
+
+document.getElementById('btnAllow').addEventListener('click', () => {
+  localMaster.me2.allow = !localMaster.me2.allow;
+  sendToMaster('me2:rule', { allow: localMaster.me2.allow });
+  syncMe2Buttons();
+  log(`Zoll → ${localMaster.me2.allow ? 'offen' : 'blockiert'}`, '2me', 'warn');
+});
+document.getElementById('btnBoost').addEventListener('click', () => {
+  localMaster.me2.boost = !localMaster.me2.boost;
+  if (localMaster.me2.boost) localMaster.me2.slow = false;
+  sendToMaster('me2:rule', { boost: localMaster.me2.boost, slow: localMaster.me2.slow });
+  syncMe2Buttons();
+});
+document.getElementById('btnSlow').addEventListener('click', () => {
+  localMaster.me2.slow = !localMaster.me2.slow;
+  if (localMaster.me2.slow) localMaster.me2.boost = false;
+  sendToMaster('me2:rule', { boost: localMaster.me2.boost, slow: localMaster.me2.slow });
+  syncMe2Buttons();
+});
+document.getElementById('btnOverride').addEventListener('click', () => {
+  localMaster.me2.override = !localMaster.me2.override;
+  sendToMaster('me2:rule', { override: localMaster.me2.override });
+  syncMe2Buttons();
+});
+
+// ─── 8. HDF-ROM ─────────────────────────────────────────────────
+const HDF_ROM = {
+  d:{ file:'d.hdf.rom', ready:'d.ready', label:'D-Basis' },
+  e:{ file:'e.hdf.rom', ready:'e.ready', label:'E-Basis' },
+  i:{ file:'i.hdf.rom', ready:'i.ready', label:'I-Basis' },
+  n:{ file:'n.hdf.rom', ready:'n.ready', label:'N-Basis' },
+  o:{ file:'o.hdf.rom', ready:'o.ready', label:'O-Basis' },
+  r:{ file:'r.hdf.rom', ready:'r.ready', label:'R-Basis' },
+  s:{ file:'s.hdf.rom', ready:'s.ready', label:'S-Basis' },
+  u:{ file:'u.hdf.rom', ready:'u.ready', label:'U-Basis' },
+  w:{ file:'w.hdf.rom', ready:'w.ready', label:'W-Basis' },
+  'axiom':      { file:'axiom.hdf.rom',        label:'Axiom' },
+  'axiom.3':    { file:'axiom.3.hdf.rom',      label:'Axiom-3' },
+  'freeaxiom':  { file:'freeaxiom.hdf.rom',    label:'FreeAxiom' },
+  'freeaxiom.9':{ file:'freeaxiom.9.hdf.rom',  label:'FreeAxiom-9' },
+  '81':         { file:'81.hdf.rom',           label:'81-Basis' },
+  '729':        { file:'729.js',               label:'729-Run' },
+  '3.hit.90':   { file:'3.hit.90.hdf.rom',     label:'3-Hit-90' },
+  'asymilation':{ file:'asymilation.hdf.rom',  ready:'asymilation.ready', label:'Asymilation' },
+  'desamalasion':{file:'desamalasion.hdf.rom', label:'Desamalasion' },
+  'zauber.6':   { file:'zauber.6.user.use',    label:'Zauber-6' },
+  'bewegung':   { file:'bewegung.ready',       label:'Bewegung' },
+  'muss':       { file:'muss.ready',           label:'Muss-Ready' },
+};
+
+const hdfHistory = [];
+let hdfHistIdx = -1;
+
+function resolveHdf(input) {
+  const key = String(input || '').trim().toLowerCase().replace('#','');
+  const rom = HDF_ROM[key];
+  if (rom) {
+    return `✅ ${key} · ${rom.file}${rom.ready ? ' · ready:'+rom.ready : ''} · ${rom.label}`;
+  }
+  return `❌ "${key}" nicht im HDF-ROM-Register`;
+}
+
+document.getElementById('hdfBtn').addEventListener('click', () => {
+  const inp = document.getElementById('hdfInput');
+  const val = inp.value;
+  if (val && hdfHistory[hdfHistory.length-1] !== val) hdfHistory.push(val);
+  hdfHistIdx = hdfHistory.length;
+  const out = resolveHdf(val);
+  document.getElementById('hdfOut').textContent = out;
+  log(out, 'HDF', out.startsWith('✅') ? 'ok' : 'err');
+});
+document.getElementById('hdfInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { document.getElementById('hdfBtn').click(); return; }
+  if (e.key === 'ArrowUp' && hdfHistory.length) {
+    e.preventDefault();
+    hdfHistIdx = Math.max(0, hdfHistIdx - 1);
+    e.target.value = hdfHistory[hdfHistIdx] || '';
+  }
+  if (e.key === 'ArrowDown' && hdfHistory.length) {
+    e.preventDefault();
+    hdfHistIdx = Math.min(hdfHistory.length, hdfHistIdx + 1);
+    e.target.value = hdfHistory[hdfHistIdx] || '';
+  }
+});
+
+// ─── 9. BUTTONS ─────────────────────────────────────────────────
+document.getElementById('btnZamRun').addEventListener('click', () => {
+  const seq = ['LOAD', 'ARBEIT_RUN', 'MAINBOARD', 'DONE'];
+  sendToMaster('zam:run', { sequence: seq, steps: seq });
+  runZamSequence(seq);
+});
+document.getElementById('btnZamStop').addEventListener('click', () => {
+  localMaster.zam = 'idle'; updateAll();
+  log('⏸ ZaM gestoppt', 'ZaM', 'warn');
+});
+document.getElementById('btnKlick').addEventListener('click', () => addKlick(1));
+document.getElementById('btnZackReset').addEventListener('click', resetKlick);
+document.getElementById('btnMbRun').addEventListener('click', () => simulateMainboard('manual'));
+
+// Modus
+document.querySelectorAll('#left .me2-buttons button[data-mode]').forEach(b => {
+  b.addEventListener('click', () => {
+    const mode = b.dataset.mode;
+    document.querySelectorAll('#left .me2-buttons button[data-mode]').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    orbitState.mode = mode;
+    document.getElementById('ovMode').textContent = mode;
+    sendToMaster('arbeit:mode', { mode });
+    log(`Modus: ${mode}`, 'arbeit', 'ok');
+  });
+});
+
+// Mobile-Tabs
+document.querySelectorAll('#mobTabs button').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#mobTabs button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('main').dataset.tab = b.dataset.tab;
+    setTimeout(resizeCanvas, 50);
+  });
+});
+
+// Log-Filter
+document.querySelectorAll('#logBar button').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#logBar button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    const box = document.getElementById('logBox');
+    box.className = b.dataset.f === 'all' ? '' : 'filter-' + b.dataset.f;
+  });
+});
+
+// Feedback-Toggles
+let soundOn = false;
+document.getElementById('btnSound').addEventListener('click', (e) => {
+  soundOn = !soundOn;
+  e.currentTarget.classList.toggle('active', soundOn);
+  e.currentTarget.textContent = (soundOn ? '🔊' : '🔇') + ' TON';
+  if (soundOn) beep(880, 0.06);
+});
+document.getElementById('btnAuto').addEventListener('click', (e) => {
+  orbitState.running = !orbitState.running;
+  e.currentTarget.classList.toggle('active', !orbitState.running);
+  log(`Orbit ${orbitState.running ? 'läuft' : 'pausiert'}`, 'arbeit', 'warn');
+});
+
+// ─── 10. MAINBOARD-SIM ──────────────────────────────────────────
+function simulateMainboard(source) {
+  const mbState = document.getElementById('mbState');
+  mbState.textContent = 'run…';
+  setTimeout(() => {
+    const active = moduleState.filter(m => m.active).length;
+    const compat = Math.min(100, (active / MODULES.length) * 100 * 0.9 + Math.random() * 8);
+    const acc4x  = Math.min(100, compat * 0.95 + Math.random() * 5);
+    const ver2x  = compat > 55 && Math.random() > 0.25;
+    const payload = { compat, acc4x, ver2x, source, ts: Date.now() };
+    applyMainboardResult(payload, source);
+    sendToMaster('mainboard:done', payload);
+  }, 400 + Math.random() * 400);
+}
+function applyMainboardResult(p, src) {
+  document.getElementById('mpAcc4x').textContent = (p.acc4x?.toFixed(0) ?? '–') + '%';
+  document.getElementById('mpVer2x').textContent = p.ver2x ? '✅ OK' : '❌ FAIL';
+  document.getElementById('mpVer2x').className   = 'val ' + (p.ver2x ? 'green' : 'red');
+  document.getElementById('mbState').textContent = 'done';
+  log(`MAINBOARD(${src}) · Kompat ${p.compat?.toFixed(0)}% · 4× ${p.acc4x?.toFixed(0)}% · 2× ${p.ver2x ? 'OK' : 'FAIL'}`, 'MAINBOARD', p.ver2x ? 'ok' : 'warn');
+}
+
+// ─── 11. UI-UPDATE ──────────────────────────────────────────────
+function updateArbeitProgress() {
+  const active = moduleState.filter(m => m.active).length;
+  const progress = active / MODULES.length;
+  document.getElementById('mpActive').textContent = `${active}/${MODULES.length}`;
+  document.getElementById('mpProg').textContent   = (progress * 100).toFixed(0) + '%';
+  document.getElementById('mpBar').style.width    = (progress * 100) + '%';
+  document.getElementById('ovArbeit').textContent = (progress * 100).toFixed(0) + '%';
+
+  const respo = progress * 0.7 + (localMaster.zack / 10) * 0.3;
+  const respoClamped = Math.min(1, respo);
+  document.getElementById('mpRespo').textContent  = respoClamped.toFixed(2);
+  document.getElementById('hdrRespo').textContent = (respoClamped * 100).toFixed(0) + '%';
+  return respoClamped;
+}
+
+function updateAll() {
+  document.getElementById('hdrKlick').textContent = klickCounter;
+  document.getElementById('hdrZack').textContent  = zackCounter;
+  document.getElementById('klickCount').textContent = klickCounter;
+  document.getElementById('zackCount').textContent  = zackCounter;
+  document.getElementById('klickRemain').textContent = Math.max(0, 100 - klickCounter);
+  document.getElementById('ftKlick').textContent = klickCounter;
+  document.getElementById('ftZack').textContent  = zackCounter;
+
+  document.getElementById('zamState').textContent = localMaster.zam;
+  document.getElementById('zamLast').textContent  =
+    localMaster.zam === 'idle' ? '–' : `run#${localMaster.zamCount || 1}`;
+
+  document.getElementById('klickState').textContent = localMaster.me2.allow ? 'bereit' : 'blockiert';
+  document.getElementById('ledMaster').className    = 'led ' + (isMasterConnected ? 'master' : '');
+
+  // arbeitBadge
+  const badge = document.getElementById('arbeitBadge');
+  if (!localMaster.me2.allow)      { badge.textContent = 'blockiert'; badge.style.color = 'var(--red)'; }
+  else if (localMaster.zam === 'run')  { badge.textContent = 'run';   badge.style.color = 'var(--gold)'; }
+  else if (localMaster.zam === 'done') { badge.textContent = 'done';  badge.style.color = 'var(--green)'; }
+  else                                  { badge.textContent = 'bereit'; badge.style.color = ''; }
+
+  updateArbeitProgress();
+  syncMe2Buttons();
+}
+
+// ─── 12. LOG ────────────────────────────────────────────────────
+function log(msg, tag = 'arbeit', type = '') {
+  const box = document.getElementById('logBox');
+  const entry = document.createElement('div');
+  entry.className = 'entry' + (type ? ' is-' + type : '');
+  const t = new Date().toLocaleTimeString('de-DE');
+  entry.innerHTML = `<span class="time">[${t}]</span><span class="tag">${tag}</span><span class="${type}">${msg}</span>`;
+  box.appendChild(entry);
+  box.scrollTop = box.scrollHeight;
+  while (box.children.length > 120) box.removeChild(box.firstChild);
+}
+
+// ─── 13. SOUND ──────────────────────────────────────────────────
+let audioCtx = null;
+function beep(freq, dur) {
+  if (!soundOn) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'sine'; o.frequency.value = freq;
+    g.gain.value = 0.04;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start();
+    o.stop(audioCtx.currentTime + dur);
+  } catch (_) {}
+}
+
+// ─── 14. TASTATUR ───────────────────────────────────────────────
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === ' ') { e.preventDefault(); addKlick(1); spawnRipple(canvas.width/2/(window.devicePixelRatio||1), canvas.height/2/(window.devicePixelRatio||1)); }
+  if (e.key === 'r' || e.key === 'R') {
+    if (e.shiftKey) resetKlick();
+    else { orbitState.index = 0; orbitState.history = []; log('⟲ Orbit Reset', 'arbeit', 'warn'); }
+  }
+  if (e.key === 'z' || e.key === 'Z') document.getElementById('btnZamRun').click();
+  if (e.key === 'p' || e.key === 'P') orbitState.running = !orbitState.running;
+  if (e.key === 'm' || e.key === 'M') simulateMainboard('key');
+  if (e.key === '1') document.querySelector('[data-mode="IQQ"]')?.click();
+  if (e.key === '2') document.querySelector('[data-mode="OCTA"]')?.click();
+  if (e.key === '3') document.querySelector('[data-mode="A81"]')?.click();
+});
+
+// Canvas-Klick → Ripple + KlicK
+canvas.addEventListener('click', (e) => {
+  const r = canvas.getBoundingClientRect();
+  const x = (e.clientX - r.left);
+  const y = (e.clientY - r.top);
+  spawnRipple(x, y);
+  addKlick(1);
+});
+
+// ─── 15. UHR ────────────────────────────────────────────────────
+function updateClock() {
+  document.getElementById('hdrClock').textContent = '⏱️ ' + new Date().toLocaleTimeString('de-DE');
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ─── 16. API ────────────────────────────────────────────────────
+window.ARBEIT = {
+  modules: () => moduleState.map(m => ({ id: m.id, active: m.active })),
+  toggle: toggleModule,
+  progress: () => moduleState.filter(m => m.active).length / MODULES.length,
+
+  klick: (n = 1) => addKlick(n),
+  resetKlick,
+  state: () => ({
+    klick: klickCounter, zack: zackCounter,
+    mode: orbitState.mode, tick: orbitState.tick, index: orbitState.index,
+    modules: moduleState.filter(m => m.active).length,
+  }),
+
+  zam: {
+    run: (steps) => runZamSequence(steps || ['LOAD','ARBEIT_RUN','DONE']),
+    stop: () => { localMaster.zam = 'idle'; updateAll(); },
+  },
+
+  me2: {
+    setRule: (rule) => {
+      Object.assign(localMaster.me2, rule);
+      sendToMaster('me2:rule', rule);
+      syncMe2Buttons();
+    },
+    allow: () => { localMaster.me2.allow = true;  syncMe2Buttons(); },
+    block: () => { localMaster.me2.allow = false; syncMe2Buttons(); },
+  },
+
+  zoll: {
+    check: () => localMaster.me2.allow
+      ? { passed: true,  reason: 'OK' }
+      : { passed: false, reason: 'Zoll geschlossen' },
+  },
+
+  hdf: { resolve: resolveHdf, register: HDF_ROM },
+
+  master: {
+    connected: () => isMasterConnected,
+    state: () => ({ ...localMaster }),
+    broadcast: (type, payload) => sendToMaster(type, payload),
+  },
+
+  mainboard: { sim: simulateMainboard },
+};
+
+// ─── 17. INIT ───────────────────────────────────────────────────
+renderModules();
+resizeCanvas();
+updateAll();
+sendToMaster('arbeit:hello', {
+  modules: MODULES.length,
+  activeCount: moduleState.filter(m => m.active).length,
+  version: 'reFINAL',
+  ts: Date.now(),
+});
+log('⚙️ ARBEIT · RESPO · INDEX bereit · reFINAL', 'init', 'ok');
+log(`🧩 ${MODULES.length} Module aus brain/ geladen`, 'init');
+log('Kompatibel: KlicK · ZaM · 2me · MAINBOARD · respo-master.js', 'init');
+log('Kanal: iki1uc-orbit · Storage: iki1uc-master-respo', 'init');
+log('Space = KlicK · R = Orbit-Reset · Shift+R = KlicK-Reset · Z = ZaM · M = MAINBOARD · 1/2/3 = Modus', 'init', 'warn');
+
+requestAnimationFrame(loop);
+
+console.log('%c⚙️ ARBEIT · RESPO · INDEX (reFINAL)', 'color:#b388ff;font-weight:bold');
+console.log('→ window.ARBEIT.klick() · .zam.run() · .me2.setRule() · .mainboard.sim() · .progress()');
+</script>
+</body>
+</html>
