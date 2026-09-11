@@ -8,3 +8,1521 @@ function pipeline2(frame) {
     console.log("P2: BLOCK → KItriKIme nicht aktiv");
   }
 }
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚛️ UNI · ATOM · iki1uc · 3-9-81 · reFINAL</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{
+    --bg:#05070e; --fg:#c0d0d0;
+    --cyan:#6cf; --gold:#f0d080; --purple:#b388ff;
+    --green:#8cf0d0; --red:#ff6666; --orange:#ff8c00;
+    --line:rgba(120,220,150,0.08);
+    --panel:rgba(6,8,16,0.6);
+  }
+  html,body{height:100%;}
+  body{
+    background:var(--bg); color:var(--fg);
+    font-family:'Consolas','Segoe UI',monospace;
+    height:100vh; overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+  header{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:8px 14px;
+    border-bottom:1px solid var(--line);
+    background:rgba(6,8,16,0.85);
+    backdrop-filter:blur(10px);
+    flex-wrap:wrap; gap:8px; z-index:6;
+  }
+  header h1{
+    font-size:14px; font-weight:300; letter-spacing:1.5px;
+    background:linear-gradient(135deg,#7ee0a0,#d8f0c0,#b388ff);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  header h1 small{
+    font-size:9px; color:#5a7a8a; -webkit-text-fill-color:#5a7a8a;
+    letter-spacing:1px; margin-left:6px;
+  }
+  header h1 .badge{
+    font-size:8px; letter-spacing:2px;
+    border-radius:4px; padding:1px 5px; margin-left:4px;
+  }
+  .b-final{ color:var(--gold); -webkit-text-fill-color:var(--gold); border:1px solid rgba(240,208,128,0.35); }
+  .b-atom{ color:var(--purple); -webkit-text-fill-color:var(--purple); border:1px solid rgba(179,136,255,0.4); }
+  .status-leds{
+    display:flex; gap:10px; font-size:9px;
+    color:#6a8a7a; align-items:center; flex-wrap:wrap;
+  }
+  .led{display:inline-block;width:7px;height:7px;border-radius:50%;background:#3a3a3a;margin-right:4px;transition:.3s;}
+  .led.on{background:#8cf0d0;box-shadow:0 0 6px #8cf0d0;}
+  .led.master{background:#b388ff;box-shadow:0 0 6px #b388ff;}
+  .led.djinn{background:#b388ff;box-shadow:0 0 6px #b388ff;}
+  .led.flow{background:#6cf;box-shadow:0 0 6px #6cf;}
+  .led.pulse{animation:pulse 1.4s infinite;}
+  @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+  #main{flex:1; display:grid; grid-template-columns:260px 1fr 290px; overflow:hidden;}
+  .col{padding:10px; overflow-y:auto; background:var(--panel);}
+  #left{border-right:1px solid var(--line);}
+  #right{border-left:1px solid var(--line);}
+
+  #mobTabs{display:none;}
+  @media (max-width:1000px){
+    #main{grid-template-columns:1fr;}
+    #main .col{display:none;}
+    #main[data-tab="left"] #left{display:block;}
+    #main[data-tab="right"] #right{display:block;}
+    #main[data-tab="orbit"] #center{display:flex;}
+    #left,#right{border:none;}
+    #mobTabs{
+      display:flex; gap:3px; padding:5px 8px;
+      background:rgba(6,8,16,0.85);
+      border-bottom:1px solid var(--line); overflow-x:auto;
+    }
+    #mobTabs button{
+      flex:1; min-width:70px;
+      background:rgba(20,20,30,0.6);
+      border:1px solid rgba(179,136,255,0.2);
+      color:var(--purple); padding:6px 4px; border-radius:6px;
+      font-family:inherit; font-size:9px; cursor:pointer; white-space:nowrap;
+    }
+    #mobTabs button.active{background:rgba(179,136,255,0.2);color:#fff;border-color:var(--purple);}
+  }
+
+  .panel-title{
+    font-size:9px; color:var(--gold); letter-spacing:1.5px;
+    border-bottom:1px solid rgba(255,215,0,0.08);
+    padding-bottom:4px; margin-bottom:6px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .panel-title .badge{font-size:8px; color:#5a7a8a; font-weight:400;}
+  .panel-title.purple{color:var(--purple);border-bottom-color:rgba(179,136,255,0.15);}
+  .panel-title.green{color:var(--green);border-bottom-color:rgba(120,220,150,0.15);}
+  .panel-title.cyan{color:var(--cyan);border-bottom-color:rgba(108,204,255,0.15);}
+
+  .module-item{
+    display:flex; align-items:center; gap:5px;
+    padding:3px 5px; border-radius:5px;
+    font-size:9.5px; color:#8aa8a0; cursor:pointer;
+    border-left:2px solid transparent;
+    transition:.15s; margin-bottom:1px;
+  }
+  .module-item:hover{background:rgba(120,220,150,0.04);color:#d0e8e0;border-left-color:#7ee0a0;}
+  .module-item.active{background:rgba(120,220,150,0.06);border-left-color:var(--green);color:#d0e8e0;}
+  .module-item .dot{width:5px;height:5px;border-radius:50%;background:#3a3a3a;flex-shrink:0;transition:.3s;}
+  .module-item.active .dot{background:var(--green);box-shadow:0 0 6px var(--green);}
+  .module-item .name{flex:1;}
+  .module-item .size{font-size:8px;color:#4a5a5a;}
+
+  /* Parts Liste */
+  .part-item{
+    display:flex; align-items:center; gap:6px;
+    padding:3px 5px; border-radius:5px;
+    font-size:9.5px; color:#8aa8a0; cursor:pointer;
+    border-left:2px solid transparent;
+    transition:.15s; margin-bottom:1px;
+  }
+  .part-item:hover{background:rgba(179,136,255,0.05);color:#d0e8e0;}
+  .part-item.active{border-left-color:var(--purple);background:rgba(179,136,255,0.06);color:#d0e8e0;}
+  .part-item .pd{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .part-item .pn{flex:1;}
+  .part-item .pm{font-size:8px;color:#4a5a5a;}
+
+  /* Magnify Slider */
+  .slider-row{
+    display:flex; align-items:center; gap:6px;
+    margin-top:5px; font-size:9px;
+  }
+  .slider-row input[type=range]{
+    flex:1; height:4px; -webkit-appearance:none; appearance:none;
+    background:linear-gradient(90deg,#6cf,#b388ff); border-radius:2px; outline:none;
+  }
+  .slider-row input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:14px; height:14px; border-radius:50%;
+    background:#d0e8e0; border:1px solid var(--purple); cursor:pointer;
+    box-shadow:0 0 6px rgba(179,136,255,0.6);
+  }
+  .slider-row .val{color:var(--purple);font-weight:bold;min-width:36px;text-align:right;}
+
+  /* Center */
+  #center{display:flex; flex-direction:column; padding:10px; overflow:hidden;}
+  #atomWrap{
+    flex:1; position:relative;
+    display:flex; align-items:center; justify-content:center;
+    min-height:200px;
+  }
+  #atomCanvas{background:transparent;display:block;width:100%;height:100%;cursor:crosshair;}
+  #atomOverlay{
+    position:absolute; top:8px; left:8px;
+    font-size:9px; color:#6a8a7a; line-height:1.5;
+    pointer-events:none;
+  }
+  #atomOverlay .v{color:#a0e0b0;font-weight:bold;}
+  #atomOverlay .gold{color:var(--gold);}
+  #atomOverlay .purple{color:var(--purple);}
+  #atomOverlay .cyan{color:var(--cyan);}
+  #atomOverlay .red{color:var(--red);}
+  #atomOverlay .flow-hin{color:var(--cyan);font-weight:bold;}
+  #atomOverlay .flow-her{color:var(--gold);font-weight:bold;}
+
+  .arbeit-panel{
+    background:rgba(0,0,0,0.25);
+    border:1px solid rgba(120,220,150,0.04);
+    border-radius:8px; padding:8px 10px;
+    margin-bottom:6px; font-size:9px;
+  }
+  .arbeit-panel .head{
+    color:var(--gold); font-weight:bold; letter-spacing:1px;
+    border-bottom:1px solid rgba(255,215,0,0.06);
+    padding-bottom:3px; margin-bottom:5px;
+    display:flex; justify-content:space-between;
+  }
+  .metric-row{
+    display:flex; justify-content:space-between;
+    padding:1.5px 0; border-bottom:1px solid rgba(255,255,255,0.02);
+    font-size:9px;
+  }
+  .metric-row .label{color:#8aa8a0;}
+  .metric-row .val{font-weight:bold;color:#d0e8e0;}
+  .metric-row .val.gold{color:var(--gold);}
+  .metric-row .val.green{color:var(--green);}
+  .metric-row .val.purple{color:var(--purple);}
+  .metric-row .val.red{color:var(--red);}
+  .metric-row .val.cyan{color:var(--cyan);}
+
+  .prog-bar{
+    width:100%; height:5px;
+    background:rgba(20,28,20,0.6);
+    border-radius:3px; overflow:hidden; margin-top:3px;
+  }
+  .prog-bar .fill{
+    height:100%;
+    background:linear-gradient(90deg,#7ee0a0,#b388ff);
+    border-radius:3px; transition:width .4s;
+  }
+  .prog-bar .fill.serum{background:linear-gradient(90deg,#ff6666,#f0d080);}
+  .prog-bar .fill.kollektiv{background:linear-gradient(90deg,#6cf,#b388ff,#8cf0d0);}
+  .prog-bar .fill.koop{background:linear-gradient(90deg,#b388ff,#6cf);}
+
+  .me2-buttons{display:flex; flex-wrap:wrap; gap:3px; margin-top:5px;}
+  .me2-buttons button{
+    flex:1; min-width:48px;
+    background:rgba(20,20,30,0.6);
+    border:1px solid rgba(179,136,255,0.2);
+    color:var(--purple); padding:3px 0;
+    border-radius:5px; font-family:inherit;
+    font-size:9px; cursor:pointer; transition:.2s;
+  }
+  .me2-buttons button:hover{background:rgba(179,136,255,0.1);}
+  .me2-buttons button.active{background:rgba(179,136,255,0.2);color:#fff;border-color:var(--purple);}
+  .me2-buttons button.green{border-color:rgba(120,220,150,0.25);color:var(--green);}
+  .me2-buttons button.green.active{background:rgba(120,220,150,0.15);color:#fff;border-color:var(--green);}
+  .me2-buttons button.gold{border-color:rgba(240,208,128,0.25);color:var(--gold);}
+  .me2-buttons button.gold.active{background:rgba(240,208,128,0.15);color:#fff;border-color:var(--gold);}
+
+  /* Flow indicator */
+  .flow-indicator{
+    display:flex; align-items:center; gap:8px;
+    padding:6px 10px; margin-top:6px;
+    background:rgba(0,0,0,0.3); border-radius:8px;
+    border:1px solid rgba(108,204,255,0.1);
+    font-size:9px;
+  }
+  .flow-arrow{
+    font-size:14px; transition:transform .3s;
+  }
+  .flow-arrow.hin{ color:var(--cyan); transform:scaleX(-1); }
+  .flow-arrow.her{ color:var(--gold); }
+  .flow-bar{
+    flex:1; height:4px; background:rgba(0,0,0,0.5);
+    border-radius:2px; overflow:hidden;
+    position:relative;
+  }
+  .flow-bar .fill{
+    position:absolute; top:0; height:100%;
+    background:linear-gradient(90deg,#6cf,#b388ff);
+    transition:left .1s linear, width .1s linear;
+    border-radius:2px;
+  }
+  .flow-label{min-width:60px;font-weight:bold;}
+
+  /* Force table */
+  .force-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:2px 0; font-size:9px;
+    border-bottom:1px solid rgba(255,255,255,0.02);
+  }
+  .force-row .pair{color:#8aa8a0;}
+  .force-row .val{font-weight:bold;color:var(--purple);}
+  .force-bar{
+    height:3px; width:50px; background:rgba(20,20,30,0.7);
+    border-radius:2px; overflow:hidden;
+  }
+  .force-bar .fill{
+    height:100%; background:linear-gradient(90deg,#6cf,#b388ff);
+    transition:width .3s;
+  }
+  .cluster-chip{
+    display:inline-block; padding:1px 6px; margin:2px 2px 0 0;
+    border-radius:6px; font-size:8px;
+    border:1px solid rgba(120,220,150,0.2);
+    color:#8aa8a0;
+  }
+  .cluster-chip.c1{border-color:rgba(179,136,255,0.5);color:#b388ff;}
+  .cluster-chip.c2{border-color:rgba(108,204,255,0.5);color:#6cf;}
+  .cluster-chip.c3{border-color:rgba(240,208,128,0.5);color:#f0d080;}
+  .cluster-chip.c4{border-color:rgba(140,240,208,0.5);color:#8cf0d0;}
+
+  /* HDF */
+  #hdfBar{
+    display:flex; gap:6px; align-items:center;
+    padding:6px 10px; background:rgba(0,0,0,0.4);
+    border-top:1px solid var(--line);
+    font-size:9px; flex-wrap:wrap;
+  }
+  #hdfBar label{color:#6a8a7a;letter-spacing:1px;}
+  #hdfBar input{
+    background:rgba(20,28,20,0.6);
+    border:1px solid rgba(120,220,150,0.15);
+    border-radius:6px; padding:3px 8px;
+    color:#d0e8e0; font-family:inherit;
+    font-size:9px; min-width:150px; flex:1;
+  }
+  #hdfBar button{
+    background:rgba(20,28,20,0.6);
+    border:1px solid rgba(120,220,150,0.2);
+    border-radius:6px; padding:3px 12px;
+    color:#d0e8e0; font-family:inherit;
+    font-size:9px; cursor:pointer; transition:.2s;
+  }
+  #hdfBar button:hover{border-color:#7ee0a0;color:#fff;}
+  #hdfOut{color:var(--green);font-size:8.5px;}
+
+  #logBar{
+    display:flex; gap:3px; align-items:center;
+    padding:3px 10px; background:rgba(0,0,0,0.55);
+    border-top:1px solid var(--line);
+    font-size:8.5px;
+  }
+  #logBar span{color:#5a7a8a;letter-spacing:1px;margin-right:4px;}
+  #logBar button{
+    background:transparent; border:1px solid rgba(120,220,150,0.12);
+    color:#8aa8a0; border-radius:4px; padding:1px 7px;
+    font-family:inherit; font-size:8.5px; cursor:pointer;
+  }
+  #logBar button.active{color:#fff;border-color:var(--green);background:rgba(120,220,150,0.08);}
+  #logBox{
+    max-height:100px; overflow-y:auto;
+    padding:6px 10px; background:rgba(0,0,0,0.5);
+    border-top:1px solid var(--line);
+    font-size:8.5px; line-height:1.45; color:#8ab0c0;
+  }
+  #logBox .entry{padding:1px 0;border-bottom:1px solid rgba(255,255,255,0.02);}
+  #logBox .time{color:#3a4a5a;margin-right:5px;}
+  #logBox .tag{color:var(--cyan);margin-right:4px;}
+  #logBox .ok{color:var(--green);}
+  #logBox .warn{color:var(--gold);}
+  #logBox .err{color:var(--red);}
+  #logBox .djinn{color:var(--purple);}
+  #logBox .atom{color:var(--orange);}
+  #logBox.filter-ok .entry:not(.is-ok){display:none;}
+  #logBox.filter-warn .entry:not(.is-warn){display:none;}
+  #logBox.filter-err .entry:not(.is-err){display:none;}
+  #logBox.filter-djinn .entry:not(.is-djinn){display:none;}
+  #logBox.filter-atom .entry:not(.is-atom){display:none;}
+
+  footer{
+    padding:5px 14px; background:rgba(6,8,16,0.85);
+    border-top:1px solid var(--line);
+    font-size:8.5px; color:#445555;
+    display:flex; justify-content:space-between;
+    flex-wrap:wrap; gap:8px;
+  }
+  footer .gold{color:var(--gold);}
+  footer .purple{color:var(--purple);}
+  footer .green{color:var(--green);}
+  footer .cyan{color:var(--cyan);}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚛️ UNI · ATOM
+    <small>iki1uc · 3-9-81 · reFINAL</small>
+    <span class="badge b-atom">ATOM</span>
+    <span class="badge b-final">reFINAL</span>
+  </h1>
+  <div class="status-leds">
+    <span><span class="led" id="ledMaster"></span>MASTER</span>
+    <span><span class="led on pulse" id="ledArbeit"></span>ARBEIT</span>
+    <span><span class="led" id="ledAtom"></span>ATOM</span>
+    <span><span class="led on flow" id="ledFlow"></span>FLOW</span>
+    <span>Kern <span id="hdrMass" style="color:#b388ff;font-weight:bold;">0</span></span>
+    <span>KOOP <span id="hdrKoop" style="color:#6cf;font-weight:bold;">0.00</span></span>
+    <span>Clusters <span id="hdrClusters" style="color:#8cf0d0;font-weight:bold;">0</span></span>
+    <span id="hdrClock" style="color:#4a5a5a;">⏱️ --:--</span>
+  </div>
+</header>
+
+<div id="mobTabs">
+  <button data-tab="left">🧩 Kern</button>
+  <button data-tab="orbit" class="active">⚛️ Atom</button>
+  <button data-tab="right">🎛 Steuerung</button>
+</div>
+
+<div id="main" data-tab="orbit">
+
+  <!-- ═ LINKS: KERN · TEILE · MAGNIFY ═ -->
+  <div class="col" id="left">
+
+    <div class="panel-title purple">
+      <span>⚛️ KERN · PARTS</span>
+      <span class="badge" id="partsCount">6/6</span>
+    </div>
+    <div id="partsList"></div>
+
+    <div class="panel-title purple" style="margin-top:12px;">
+      <span>🔎 MAGNIFY</span>
+      <span class="badge" id="magVal">1.00×</span>
+    </div>
+    <div class="slider-row">
+      <span style="color:#5a7a8a">0.2</span>
+      <input id="magSlider" type="range" min="0.2" max="3.0" step="0.05" value="1">
+      <span style="color:#5a7a8a">3.0</span>
+    </div>
+    <div class="metric-row" style="margin-top:5px;">
+      <span class="label">Gravitations-Konstante</span>
+      <span class="val purple" id="gConst">0.0008</span>
+    </div>
+    <div class="metric-row">
+      <span class="label">Cluster-Schwelle</span>
+      <span class="val purple" id="clusterThresh">0.35</span>
+    </div>
+
+    <div class="panel-title cyan" style="margin-top:12px;">
+      <span>🧲 KOMPATIBILITÄT</span>
+    </div>
+    <div class="metric-row"><span class="label">Balance</span><span class="val cyan" id="cmpBalance">—</span></div>
+    <div class="metric-row"><span class="label">Memory</span><span class="val cyan" id="cmpMemory">—</span></div>
+    <div class="metric-row"><span class="label">Storage</span><span class="val cyan" id="cmpStorage">—</span></div>
+
+    <div class="panel-title green" style="margin-top:12px;">
+      <span>🧬 PIPELINE</span>
+      <span class="badge" id="pipeState">—</span>
+    </div>
+    <div class="me2-buttons">
+      <button id="pipeP0" class="green">P0</button>
+      <button id="pipeP1" class="green">P1</button>
+      <button id="pipeP2" class="green">P2</button>
+      <button id="pipeP4" class="green">P4</button>
+      <button id="pipePe" class="gold">Pe</button>
+    </div>
+
+    <div class="panel-title" style="margin-top:12px;">
+      <span>🌀 AXIOM · MODI</span>
+    </div>
+    <div class="me2-buttons">
+      <button data-mode="IQQ" class="active">IQQ</button>
+      <button data-mode="OCTA">OCTA</button>
+      <button data-mode="A81">A81</button>
+    </div>
+
+    <div class="panel-title" style="margin-top:12px;">
+      <span>🎛 FEEDBACK</span>
+    </div>
+    <div class="me2-buttons">
+      <button id="btnSound">🔇 TON</button>
+      <button id="btnAuto" class="active">⏸ AUTO</button>
+    </div>
+  </div>
+
+  <!-- ═ MITTE: ATOM ═ -->
+  <div id="center">
+    <div id="atomWrap">
+      <canvas id="atomCanvas"></canvas>
+      <div id="atomOverlay">
+        <div>⚛️ <span class="v" id="ovMode">IQQ</span> · Tick <span class="v gold" id="ovTick">0</span></div>
+        <div>🔎 Magnify <span class="v purple" id="ovMag">1.00×</span></div>
+        <div>🧲 G <span class="v cyan" id="ovG">0.0008</span></div>
+        <div>🌊 Flow <span id="ovFlow" class="flow-hin">hin →</span></div>
+      </div>
+    </div>
+
+    <div class="flow-indicator">
+      <span class="flow-arrow hin" id="flowArrow">➜</span>
+      <span class="flow-label" id="flowLabel" style="color:#6cf;">HIN · input</span>
+      <div class="flow-bar"><div class="fill" id="flowFill" style="left:0;width:20%;"></div></div>
+      <span style="color:#5a7a8a" id="flowAmp">0.00</span>
+    </div>
+
+    <div class="arbeit-panel" style="margin-top:6px;">
+      <div class="head">
+        <span>⚛️ ATOM · ZUSTAND</span>
+        <span id="atomBadge">ruhig</span>
+      </div>
+      <div class="metric-row"><span class="label">Kern-Masse</span><span class="val purple" id="mpMass">0</span></div>
+      <div class="metric-row"><span class="label">Gravitation ges.</span><span class="val purple" id="mpGrav">0.00</span></div>
+      <div class="metric-row"><span class="label">KOOP</span><span class="val cyan" id="mpKoop">0.00</span></div>
+      <div class="prog-bar"><div class="fill koop" id="mpKoopBar" style="width:0%;"></div></div>
+      <div class="metric-row" style="margin-top:5px;"><span class="label">POOL</span><span class="val cyan" id="mpPool">0.00</span></div>
+      <div class="metric-row"><span class="label">Cluster</span><span class="val green" id="mpClusters">0</span></div>
+      <div class="metric-row"><span class="label">Kollektiv</span><span class="val cyan" id="mpKollektiv">0%</span></div>
+      <div class="prog-bar"><div class="fill kollektiv" id="mpKollektivBar" style="width:0%;"></div></div>
+      <div class="metric-row" style="margin-top:5px;"><span class="label">Serum</span><span class="val gold" id="mpSerum">0/98</span></div>
+      <div class="prog-bar"><div class="fill serum" id="mpSerumBar" style="width:0%;"></div></div>
+    </div>
+  </div>
+
+  <!-- ═ RECHTS: FORCES · CLUSTERS · DJINN · ZAM ═ -->
+  <div class="col" id="right">
+
+    <div class="panel-title purple">
+      <span>🧲 KRAFTFELD · TOP PAARE</span>
+    </div>
+    <div id="forceList"></div>
+
+    <div class="panel-title green" style="margin-top:10px;">
+      <span>🧩 CLUSTERS</span>
+      <span class="badge" id="clusterBadge">0</span>
+    </div>
+    <div id="clusterList" style="font-size:9px;line-height:1.7;color:#8aa8a0;">
+      <span style="color:#5a7a8a">— keine Cluster —</span>
+    </div>
+
+    <div class="panel-title cyan" style="margin-top:10px;">
+      <span>🌊 FLOW · HIN ↔ HER</span>
+      <span class="badge" id="flowDirBadge">hin</span>
+    </div>
+    <div class="metric-row"><span class="label">Phase</span><span class="val cyan" id="flowPhase">0.00</span></div>
+    <div class="metric-row"><span class="label">Amplitude</span><span class="val cyan" id="flowAmp2">0.00</span></div>
+    <div class="metric-row"><span class="label">Flips / min</span><span class="val purple" id="flowFlips">0</span></div>
+    <div class="me2-buttons">
+      <button id="btnFlowFast">⚡ Flow×2</button>
+      <button id="btnFlowSlow">🐢 Flow/2</button>
+      <button id="btnFlowPulse">💥 Pulse</button>
+    </div>
+
+    <div class="panel-title purple" style="margin-top:10px;">
+      <span>🧞 DJINN · ALGORITHMUS</span>
+      <span class="badge" id="djinnState">on</span>
+    </div>
+    <div class="me2-buttons">
+      <button id="btnDjinn" class="active">🧞 ON</button>
+      <button id="btnDjinnFast">⚡×2</button>
+      <button id="btnDjinnSlow">🐢</button>
+      <button id="btnOrdnung">📐 ORDNUNG</button>
+    </div>
+    <div class="metric-row" style="margin-top:5px;">
+      <span class="label">Ordnungs-Grad</span>
+      <span class="val atom" id="djinnOrdnung">0%</span>
+    </div>
+    <div class="prog-bar"><div class="fill kollektiv" id="djinnOrdnungBar" style="width:0%;"></div></div>
+    <div class="metric-row" style="margin-top:5px;">
+      <span class="label">Letztes Event</span>
+      <span class="val purple" id="djinnLast">–</span>
+    </div>
+
+    <div class="panel-title" style="margin-top:10px;">
+      <span>⚡ ZaM · SEQUENZ</span>
+      <span class="badge" id="zamState">idle</span>
+    </div>
+    <div class="me2-buttons">
+      <button id="btnZamRun">▶ RUN</button>
+      <button id="btnZamStop">⏸ STOP</button>
+    </div>
+
+    <div class="panel-title gold" style="margin-top:10px;">
+      <span>🔘 KLICK · SERUM</span>
+      <span class="badge" id="klickState">idle</span>
+    </div>
+    <div class="metric-row"><span class="label">KlicK</span><span class="val gold" id="klickCount">0</span></div>
+    <div class="metric-row"><span class="label">ZacK</span><span class="val gold" id="zackCount">0</span></div>
+    <div class="metric-row"><span class="label">Serum</span><span class="val gold" id="serumState">inaktiv</span></div>
+    <div class="me2-buttons">
+      <button id="btnKlick">🔘 KLICK</button>
+      <button id="btnZackReset">⟲</button>
+    </div>
+
+    <div class="panel-title" style="margin-top:10px;">
+      <span>🚀 STATION</span>
+    </div>
+    <div class="me2-buttons">
+      <button id="bstPE" class="gold">PE</button>
+      <button id="bstNE" class="gold">NE</button>
+      <button id="bstWARB" class="gold">WARB</button>
+    </div>
+
+    <div class="panel-title" style="margin-top:10px;">
+      <span>🔒 ZOLL</span>
+      <span class="badge" id="zollState">offen</span>
+    </div>
+    <div class="me2-buttons">
+      <button id="btnAllow" class="active">ALLOW</button>
+      <button id="btnBoost">BOOST</button>
+      <button id="btnSlow">SLOW</button>
+      <button id="btnOverride">OVERRIDE</button>
+    </div>
+  </div>
+</div>
+
+<div id="hdfBar">
+  <label>📖 HDF‑RESOLVE</label>
+  <input id="hdfInput" placeholder="#d / #axiom / #81 / #zauber.6" value="#d" autocomplete="off">
+  <button id="hdfBtn">RESOLVE</button>
+  <span id="hdfOut">–</span>
+</div>
+
+<div id="logBar">
+  <span>LOG</span>
+  <button data-f="all" class="active">alle</button>
+  <button data-f="ok">ok</button>
+  <button data-f="warn">warn</button>
+  <button data-f="err">err</button>
+  <button data-f="djinn">djinn</button>
+  <button data-f="atom">atom</button>
+</div>
+<div id="logBox">
+  <div class="entry is-ok"><span class="time">[init]</span><span class="tag">atom</span><span class="ok">UNI·ATOM geladen · CPU/GPU/RAM/SSD/NET/IO im Kern · Forces aktiv</span></div>
+</div>
+
+<footer>
+  <span>⚛️ UNI · ATOM · <span class="purple">3-9-81</span> · reFINAL · <span class="cyan">flow hin↔her</span></span>
+  <span>Kern <span class="purple" id="ftMass">0</span> · KOOP <span class="cyan" id="ftKoop">0.00</span> · Cluster <span class="green" id="ftClusters">0</span> · KlicK <span class="gold" id="ftKlick">0</span></span>
+  <span>Space = KlicK · Z = ZaM · M = MAINBOARD · D = DJINN · O = Ordnung · F = Flow-Pulse · P = Parts · 1/2/3 = Modus</span>
+</footer>
+
+<script>
+"use strict";
+// ═══════════════════════════════════════════════════════════════════
+// UNI · ATOM — alles geht zum Kern hin und her
+// Kompatibel: reFINAL · DJINN · KlicK · ZaM · Serum · MAINBOARD
+// ═══════════════════════════════════════════════════════════════════
+
+// ─── KOMPAT-LAYER ──────────────────────────────────────────────
+const MASTER_KEY='iki1uc-master-respo';
+const BC_NAME='iki1uc-orbit';
+let masterChannel=null, isMasterConnected=false;
+const localMaster={
+  stations:{}, klick:0, zack:0, zam:'idle', zamCount:0, zoll:'offen',
+  me2:{allow:true,boost:false,slow:false,override:false},
+  kollektiv:0, zellen:0, score:0, lastUpdate:Date.now()
+};
+try{
+  const s=localStorage.getItem(MASTER_KEY);
+  if(s) Object.assign(localMaster, JSON.parse(s));
+}catch(_){}
+
+try{
+  masterChannel=new BroadcastChannel(BC_NAME);
+  masterChannel.onmessage=(ev)=>{
+    const d=ev.data; if(!d||!d.type) return;
+    if(d.type==='master:state'&&d.payload){Object.assign(localMaster,d.payload);isMasterConnected=true;updateAll();}
+    if(d.type==='me2:rule'&&d.payload){Object.assign(localMaster.me2,d.payload);updateAll();syncMe2Buttons();}
+    if(d.type==='klick:zack'&&d.payload){localMaster.zack=d.payload.zack??localMaster.zack;updateAll();}
+  };
+}catch(_){}
+
+function persistMaster(){try{localStorage.setItem(MASTER_KEY,JSON.stringify(localMaster));}catch(_){}}
+function sendToMaster(type,payload){
+  localMaster.lastUpdate=Date.now(); persistMaster();
+  if(masterChannel){try{masterChannel.postMessage({type,from:'ATOM',payload,ts:Date.now()});}catch(_){}}
+}
+
+// ─── ATOM · PARTS (Protonen + Neutronen im Kern) ──────────────
+// Real modelliert: Masse = Leistungsscore, Rolle = Proton/Neutron,
+// Position im Kern = feste Winkel.
+const PARTS=[
+  {id:'CPU', name:'CPU',  role:'proton',  mass:72, color:'#6cf',    label:'Rechenkern'},
+  {id:'GPU', name:'GPU',  role:'proton',  mass:88, color:'#b388ff', label:'Grafik-Kern'},
+  {id:'RAM', name:'RAM',  role:'neutron', mass:64, color:'#8cf0d0', label:'Kurzzeit'},
+  {id:'SSD', name:'SSD',  role:'neutron', mass:54, color:'#f0d080', label:'Langzeit'},
+  {id:'NET', name:'NET',  role:'proton',  mass:40, color:'#ff8c00', label:'Extern'},
+  {id:'IO',  name:'IO',   role:'neutron', mass:38, color:'#ff6666', label:'Ein/Aus'},
+];
+const partState=PARTS.map(p=>({...p, active:true}));
+
+// Feste Winkel im Kern
+const partAngles=PARTS.map((_,i)=>(i/PARTS.length)*Math.PI*2 - Math.PI/2);
+
+// Kompatibilitäts-Matrix (symmetrisch, 0..1)
+const BASE_COMPAT={
+  'CPU-GPU':0.92,'CPU-RAM':0.95,'CPU-SSD':0.88,'CPU-NET':0.75,'CPU-IO':0.70,
+  'GPU-RAM':0.85,'GPU-SSD':0.60,'GPU-NET':0.55,'GPU-IO':0.50,
+  'RAM-SSD':0.72,'RAM-NET':0.60,'RAM-IO':0.65,
+  'SSD-NET':0.58,'SSD-IO':0.72,
+  'NET-IO':0.68,
+};
+function compat(a,b){
+  const k=[a,b].sort().join('-');
+  return BASE_COMPAT[k]||0.4;
+}
+
+// Drei echte Kompatibilitätsprüfungen (Balance / Memory / Storage)
+function checkBalance(){ // CPU-GPU Balance
+  const cpu=PARTS.find(p=>p.id==='CPU'), gpu=PARTS.find(p=>p.id==='GPU');
+  return Math.min(cpu.mass,gpu.mass)/Math.max(cpu.mass,gpu.mass);
+}
+function checkMemory(){ // CPU-RAM Balance
+  const cpu=PARTS.find(p=>p.id==='CPU'), ram=PARTS.find(p=>p.id==='RAM');
+  return Math.min(cpu.mass,ram.mass)/Math.max(cpu.mass,ram.mass);
+}
+function checkStorage(){ // SSD-IO
+  const ssd=PARTS.find(p=>p.id==='SSD'), io=PARTS.find(p=>p.id==='IO');
+  return Math.min(ssd.mass,io.mass)/Math.max(ssd.mass,io.mass);
+}
+
+// ─── KRAFTFELD ─────────────────────────────────────────────────
+const forceState={
+  magnify:1.0,
+  G:0.0008,
+  clusterThresh:0.35,
+  pairForces:{},   // key 'A-B' -> grav
+  totalGrav:0,
+  clusters:[],     // array of arrays of part ids
+  koop:0,
+  pool:0,
+  lastTopPair:'–',
+};
+
+function computeForces(){
+  const pairs={}; let total=0;
+  const n=PARTS.length;
+  for(let i=0;i<n;i++){
+    for(let j=i+1;j<n;j++){
+      const a=PARTS[i], b=PARTS[j];
+      const c=compat(a.id,b.id);
+      // Winkelabstand 0..π
+      let da=Math.abs(partAngles[i]-partAngles[j]);
+      if(da>Math.PI) da=2*Math.PI-da;
+      const distNorm=da/Math.PI; // 0..1
+      const grav=forceState.G * a.mass * b.mass * c * forceState.magnify / (1+distNorm*3);
+      const key=[a.id,b.id].sort().join('-');
+      pairs[key]=grav;
+      total+=grav;
+    }
+  }
+  forceState.pairForces=pairs;
+  forceState.totalGrav=total;
+  forceState.pool=total/Math.max(1,n*(n-1)/2);
+
+  // Clusters via Union-Find
+  const parent={}; PARTS.forEach(p=>parent[p.id]=p.id);
+  const find=(x)=>parent[x]===x?x:(parent[x]=find(parent[x]));
+  const union=(x,y)=>{const rx=find(x),ry=find(y);if(rx!==ry)parent[rx]=ry;};
+
+  for(const [k,g] of Object.entries(pairs)){
+    if(g >= forceState.clusterThresh){
+      const [a,b]=k.split('-');
+      union(a,b);
+    }
+  }
+  const groups={};
+  PARTS.forEach(p=>{
+    const r=find(p.id);
+    (groups[r]=groups[r]||[]).push(p.id);
+  });
+  forceState.clusters=Object.values(groups).filter(g=>g.length>=2);
+
+  // KOOP = Summe intra-cluster Gravitation
+  let koop=0;
+  for(const cl of forceState.clusters){
+    let s=0;
+    for(let i=0;i<cl.length;i++){
+      for(let j=i+1;j<cl.length;j++){
+        const k=[cl[i],cl[j]].sort().join('-');
+        s+=pairs[k]||0;
+      }
+    }
+    koop += s * (cl.length/ PARTS.length);
+  }
+  forceState.koop=koop;
+
+  // Top-Pair
+  let topKey='–', topVal=-1;
+  for(const [k,v] of Object.entries(pairs)){ if(v>topVal){topVal=v;topKey=k;} }
+  forceState.lastTopPair=topKey+' ('+topVal.toFixed(3)+')';
+}
+
+// ─── FLOW (hin ↔ her) ─────────────────────────────────────────
+const flowState={
+  phase:0,          // 0..1
+  speed:0.003,      // pro Frame
+  dir:'hin',        // 'hin' (input) | 'her' (output)
+  flips:0,
+  lastFlip:0,
+  amp:0,            // Amplitude des aktuellen Impulses
+  pulses:[],        // kurze Zusatzimpulse
+};
+function flowTick(){
+  flowState.phase += flowState.speed;
+  // Dreieck: 0..1..0
+  const p=flowState.phase%2;
+  const tri = p<1 ? p : 2-p; // 0..1..0
+  flowState.amp=tri;
+
+  const newDir = p<1 ? 'her' : 'hin'; // p<1 => nach außen (her), p>=1 => nach innen (hin)
+  if(newDir!==flowState.dir){
+    flowState.dir=newDir;
+    flowState.flips++;
+    // log jedes 5. Flip um nicht zu spammen
+    if(flowState.flips%5===0){
+      log(`🌊 Flow-Flip #${flowState.flips} · jetzt → ${newDir.toUpperCase()}`,'Flow','atom');
+    }
+  }
+  // auf UI spiegeln
+  const arrow=document.getElementById('flowArrow');
+  const label=document.getElementById('flowLabel');
+  const fill=document.getElementById('flowFill');
+  const ovFlow=document.getElementById('ovFlow');
+  arrow.className='flow-arrow '+flowState.dir;
+  label.textContent = flowState.dir==='hin' ? 'HIN · input' : 'HER · output';
+  label.style.color = flowState.dir==='hin' ? 'var(--cyan)' : 'var(--gold)';
+  // bar: Füllung pendelt
+  if(flowState.dir==='hin'){
+    fill.style.left=(100 - tri*100)+'%'; fill.style.width='100%';
+    fill.style.background='linear-gradient(90deg,transparent,#6cf)';
+  } else {
+    fill.style.left='0%'; fill.style.width=(tri*100)+'%';
+    fill.style.background='linear-gradient(90deg,#f0d080,transparent)';
+  }
+  ovFlow.textContent = (flowState.dir==='hin'?'hin ← ':'her → ')+tri.toFixed(2);
+  ovFlow.className = 'flow-'+flowState.dir;
+  document.getElementById('flowAmp').textContent=tri.toFixed(2);
+  document.getElementById('flowAmp2').textContent=tri.toFixed(2);
+  document.getElementById('flowPhase').textContent=(flowState.phase%2).toFixed(2);
+  document.getElementById('flowDirBadge').textContent=flowState.dir;
+  document.getElementById('flowFlips').textContent=flowState.flips;
+}
+
+// ─── PARTICLE-SYSTEM (Flow-Visualisierung) ────────────────────
+const particles=[];
+function spawnFlowParticle(){
+  // Partikel starten an einer zufälligen Richtung und fliegen hin oder her
+  const a=Math.random()*Math.PI*2;
+  particles.push({
+    a,
+    r: flowState.dir==='hin' ? 1.0 : 0.0,  // hin: kommt von außen, her: geht nach außen
+    speed: 0.006 + Math.random()*0.006,
+    life: 0,
+    maxLife: 200,
+    color: flowState.dir==='hin' ? '#6cf' : '#f0d080',
+  });
+}
+function flowParticlesTick(){
+  // Spawn 1 Partikel pro Tick wenn Flow aktiv
+  if(flowState.amp>0.2 && Math.random()<0.4) spawnFlowParticle();
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.r += (p.dir==='hin'?-1:1) * p.speed;
+    if(flowState.dir==='hin') p.r -= p.speed; else p.r += p.speed;
+    p.r = flowState.dir==='hin' ? p.r - p.speed : p.r + p.speed;
+    // einfacher: immer in Richtung dir
+    if(flowState.dir==='hin') p.r -= p.speed; else p.r += p.speed;
+    p.life++;
+    if(p.r<0 || p.r>1.15 || p.life>p.maxLife){
+      particles.splice(i,1);
+    }
+  }
+}
+
+// ─── ORBIT · MODULE (Electrons) ───────────────────────────────
+const MODULES=[
+  {id:'NC_figur.js',  name:'NC_figur',  desc:'Form'},
+  {id:'NC_kraft.js',  name:'NC_kraft',  desc:'Kraft'},
+  {id:'NC_space.js',  name:'NC_space',  desc:'Raum'},
+  {id:'NC_time.js',   name:'NC_time',   desc:'Zeit'},
+  {id:'OS_CORE.js',   name:'OS_CORE',   desc:'Kern'},
+  {id:'axiom.map.js', name:'axiom.map', desc:'Axiom'},
+  {id:'coord.js',     name:'coord',     desc:'Coord'},
+  {id:'dreieck.js',   name:'dreieck',   desc:'Δ'},
+  {id:'index.html',   name:'index',     desc:'UI', self:true},
+  {id:'m.md',         name:'m.md',      desc:'Notes'},
+  {id:'muss.ready',   name:'muss',      desc:'Ready'},
+  {id:'sli.open.ready',name:'sli',      desc:'Open', self:true},
+  {id:'show.ready',   name:'show',      desc:'Show', self:true},
+  {id:'resolver.js',  name:'resolver',  desc:'Resolve'},
+  {id:'respo.js',     name:'respo',     desc:'Respo'},
+  {id:'router.js',    name:'router',    desc:'Route'},
+  {id:'vec.js',       name:'vec',       desc:'Vec'},
+  {id:'kit.js',       name:'kit',       desc:'Kit'},
+];
+const moduleState=MODULES.map(m=>({...m,active:!!m.self}));
+
+const orbitState={
+  index:0, tick:0, mode:'IQQ',
+  running:true, speed:3,
+  lastFrame:0, accumulator:0,
+  ripples:[],
+};
+
+// ─── CANVAS ────────────────────────────────────────────────────
+const canvas=document.getElementById('atomCanvas');
+const ctx=canvas.getContext('2d');
+function resizeCanvas(){
+  const wrap=canvas.parentElement;
+  const dpr=window.devicePixelRatio||1;
+  const w=wrap.clientWidth, h=wrap.clientHeight;
+  canvas.width=w*dpr; canvas.height=h*dpr;
+  canvas.style.width=w+'px'; canvas.style.height=h+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener('resize',resizeCanvas);
+if(window.ResizeObserver) new ResizeObserver(resizeCanvas).observe(document.getElementById('atomWrap'));
+
+// ─── DRAW ATOM ────────────────────────────────────────────────
+function drawAtom(){
+  const w=canvas.width/(window.devicePixelRatio||1);
+  const h=canvas.height/(window.devicePixelRatio||1);
+  ctx.clearRect(0,0,w,h);
+  const cx=w/2, cy=h/2;
+  const R =Math.min(w,h)*0.34;
+  const Rn=Math.min(w,h)*0.10; // Kern-Radius
+  const rN=Rn*0.55;            // Parts-Kreis
+
+  // ── Elektronen-Schalen (Module) ──
+  ctx.beginPath(); ctx.arc(cx,cy,R*1.35,0,Math.PI*2);
+  ctx.strokeStyle='rgba(120,220,150,0.05)'; ctx.lineWidth=1; ctx.stroke();
+
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2);
+  ctx.strokeStyle='rgba(120,220,150,0.10)'; ctx.lineWidth=2; ctx.stroke();
+
+  ctx.beginPath(); ctx.arc(cx,cy,R*0.85,0,Math.PI*2);
+  ctx.strokeStyle='rgba(108,204,255,0.08)'; ctx.lineWidth=1; ctx.stroke();
+
+  // ── Kräfte-Linien zwischen Parts im Kern ──
+  for(const [k,g] of Object.entries(forceState.pairForces)){
+    const [a,b]=k.split('-');
+    const ia=PARTS.findIndex(p=>p.id===a), ib=PARTS.findIndex(p=>p.id===b);
+    if(ia<0||ib<0) continue;
+    const angA=partAngles[ia], angB=partAngles[ib];
+    const x1=cx+Math.cos(angA)*rN, y1=cy+Math.sin(angA)*rN;
+    const x2=cx+Math.cos(angB)*rN, y2=cy+Math.sin(angB)*rN;
+    const strength=Math.min(1, g/1.5);
+    ctx.beginPath();
+    ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+    ctx.strokeStyle=`rgba(179,136,255,${0.10+strength*0.55})`;
+    ctx.lineWidth=0.6+strength*2.4;
+    ctx.stroke();
+  }
+
+  // ── Cluster-Halos um clustered Parts ──
+  const clusterColors=['#b388ff','#6cf','#f0d080','#8cf0d0','#ff8c00'];
+  forceState.clusters.forEach((cl,idx)=>{
+    if(cl.length<2) return;
+    const col=clusterColors[idx%clusterColors.length];
+    ctx.beginPath();
+    cl.forEach(id=>{
+      const i=PARTS.findIndex(p=>p.id===id);
+      if(i<0) return;
+      const ang=partAngles[i];
+      const x=cx+Math.cos(ang)*rN, y=cy+Math.sin(ang)*rN;
+      ctx.moveTo(x,y);
+      ctx.arc(x,y,Rn*0.55,0,Math.PI*2);
+    });
+    ctx.strokeStyle=col+'55';
+    ctx.lineWidth=1.4;
+    ctx.stroke();
+  });
+
+  // ── Flow-Partikel (hin ↔ her) ──
+  particles.forEach(p=>{
+    const x=cx+Math.cos(p.a)*R*1.3*p.r;
+    const y=cy+Math.sin(p.a)*R*1.3*p.r;
+    const fade=1-Math.abs(p.r-0.5)*1.2;
+    ctx.beginPath(); ctx.arc(x,y,1.6,0,Math.PI*2);
+    ctx.fillStyle=p.color+Math.max(0,Math.min(255,Math.round(fade*220))).toString(16).padStart(2,'0');
+    ctx.fill();
+  });
+
+  // ── Kern-Aura ──
+  const pulse=1+0.06*Math.sin(orbitState.tick*0.05);
+  const coreR=Rn*pulse;
+  const grad=ctx.createRadialGradient(cx,cy,0,cx,cy,coreR);
+  grad.addColorStop(0,'rgba(179,136,255,0.55)');
+  grad.addColorStop(0.6,'rgba(108,204,255,0.20)');
+  grad.addColorStop(1,'rgba(108,204,255,0)');
+  ctx.fillStyle=grad; ctx.beginPath(); ctx.arc(cx,cy,coreR*1.6,0,Math.PI*2); ctx.fill();
+
+  // ── Parts als Punkte im Kern ──
+  partState.forEach((p,i)=>{
+    if(!p.active) return;
+    const ang=partAngles[i];
+    const x=cx+Math.cos(ang)*rN, y=cy+Math.sin(ang)*rN;
+    ctx.beginPath();
+    ctx.arc(x,y, p.role==='proton'?5.2:4.0, 0, Math.PI*2);
+    ctx.fillStyle=p.color;
+    ctx.shadowColor=p.color; ctx.shadowBlur=10;
+    ctx.fill(); ctx.shadowBlur=0;
+    // Label
+    ctx.fillStyle='rgba(200,220,240,0.75)';
+    ctx.font='bold 8px Consolas'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(p.name, x + Math.cos(ang)*14, y + Math.sin(ang)*14);
+  });
+
+  // ── Module als Elektronen auf der Orbit-Schale ──
+  const activeMods=moduleState.filter(m=>m.active);
+  const num=Math.max(1,activeMods.length);
+  moduleState.forEach((m,i)=>{
+    if(!m.active) return;
+    // jede aktive Modul-Position abhängig vom Index
+    const slotIdx=i;
+    const slotAngle=(slotIdx/MODULES.length)*Math.PI*2 + orbitState.tick*0.004;
+    const x=cx+Math.cos(slotAngle)*R;
+    const y=cy+Math.sin(slotAngle)*R;
+    ctx.beginPath(); ctx.arc(x,y,3.2,0,Math.PI*2);
+    ctx.fillStyle='#8cf0d0';
+    ctx.shadowColor='#8cf0d0'; ctx.shadowBlur=8;
+    ctx.fill(); ctx.shadowBlur=0;
+  });
+
+  // ── WERTME-Symbol rotiert klein im Zentrum ──
+  const sym=ORBIT_SYM[orbitState.index % ORBIT_SYM.length];
+  ctx.fillStyle='#d0e8e0';
+  ctx.font='bold 22px Consolas';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.shadowColor='#b388ff'; ctx.shadowBlur=16;
+  ctx.fillText(sym, cx, cy);
+  ctx.shadowBlur=0;
+
+  // ── Ripples ──
+  for(let i=orbitState.ripples.length-1;i>=0;i--){
+    const r=orbitState.ripples[i]; r.age++;
+    const t=r.age/r.life;
+    if(t>=1){orbitState.ripples.splice(i,1);continue;}
+    ctx.beginPath(); ctx.arc(r.x,r.y,r.maxR*t,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(240,208,128,${(1-t)*0.6})`; ctx.lineWidth=1.4; ctx.stroke();
+  }
+
+  // Info unten
+  ctx.fillStyle='rgba(90,122,138,0.75)'; ctx.font='9px Consolas';
+  ctx.textAlign='center';
+  ctx.fillText(
+    `Kern=${partState.filter(p=>p.active).length}/${PARTS.length} · KOOP=${forceState.koop.toFixed(2)} · Flow=${flowState.dir}`,
+    cx, cy+R*1.35+22
+  );
+}
+const ORBIT_SYM=["◉","↗","↘","3","9","◎","◆","81","△","27","▣","↺","➜","◇"];
+function spawnRipple(x,y){orbitState.ripples.push({x,y,age:0,life:30,maxR:55});}
+
+// ─── LOOP ──────────────────────────────────────────────────────
+const STEP_BASE=800, STEP_FACTOR=60, STEP_MIN=100;
+function loop(now){
+  if(!orbitState.lastFrame) orbitState.lastFrame=now;
+  const delta=now-orbitState.lastFrame; orbitState.lastFrame=now;
+
+  if(orbitState.running && localMaster.me2.allow){
+    orbitState.accumulator+=delta;
+    const stepTime=Math.max(STEP_MIN,STEP_BASE-orbitState.speed*STEP_FACTOR);
+    let guard=0;
+    while(orbitState.accumulator>=stepTime && guard<8){
+      stepOrbit(); orbitState.accumulator-=stepTime; guard++;
+    }
+  }
+  orbitState.tick++;
+  flowTick();
+  flowParticlesTick();
+
+  // Kräfte alle ~30 Frames neu (Magnify-Änderung wirkt sofort)
+  if(orbitState.tick%30===0) computeForces();
+
+  drawAtom();
+  updateAtomUI();
+  requestAnimationFrame(loop);
+}
+function stepOrbit(){
+  orbitState.index=(orbitState.index+1)%ORBIT_SYM.length;
+  document.getElementById('ovTick').textContent=orbitState.tick;
+}
+function updateAtomUI(){
+  document.getElementById('ovMag').textContent=forceState.magnify.toFixed(2)+'×';
+  document.getElementById('ovG').textContent=forceState.G.toFixed(4);
+  document.getElementById('magVal').textContent=forceState.magnify.toFixed(2)+'×';
+  // Masse
+  const massTotal=partState.filter(p=>p.active).reduce((a,p)=>a+p.mass,0);
+  document.getElementById('hdrMass').textContent=massTotal;
+  document.getElementById('mpMass').textContent=massTotal;
+  document.getElementById('ftMass').textContent=massTotal;
+  document.getElementById('mpGrav').textContent=forceState.totalGrav.toFixed(2);
+  document.getElementById('mpKoop').textContent=forceState.koop.toFixed(2);
+  document.getElementById('mpKoopBar').style.width=Math.min(100,forceState.koop*20)+'%';
+  document.getElementById('mpPool').textContent=forceState.pool.toFixed(3);
+  document.getElementById('hdrKoop').textContent=forceState.koop.toFixed(2);
+  document.getElementById('ftKoop').textContent=forceState.koop.toFixed(2);
+  document.getElementById('mpClusters').textContent=forceState.clusters.length;
+  document.getElementById('hdrClusters').textContent=forceState.clusters.length;
+  document.getElementById('clusterBadge').textContent=forceState.clusters.length;
+  document.getElementById('ftClusters').textContent=forceState.clusters.length;
+
+  // Compat-Balken
+  document.getElementById('cmpBalance').textContent=(checkBalance()*100).toFixed(0)+'%';
+  document.getElementById('cmpMemory').textContent=(checkMemory()*100).toFixed(0)+'%';
+  document.getElementById('cmpStorage').textContent=(checkStorage()*100).toFixed(0)+'%';
+
+  // Atom-Badge
+  const badge=document.getElementById('atomBadge');
+  if(forceState.clusters.length>=3){badge.textContent='stabil · 3+ clusters';badge.style.color='var(--green)';}
+  else if(forceState.clusters.length>=1){badge.textContent='aktiv · '+forceState.clusters.length+' cluster';badge.style.color='var(--purple)';}
+  else{badge.textContent='ruhig · ungeclustert';badge.style.color='';}
+
+  // Led
+  document.getElementById('ledAtom').className='led '+(massTotal>0?'master pulse':'');
+  document.getElementById('ledMaster').className='led '+(isMasterConnected?'master':'');
+  document.getElementById('ledFlow').className='led on flow';
+}
+
+// ─── PARTS-LISTE ───────────────────────────────────────────────
+function renderParts(){
+  const list=document.getElementById('partsList');
+  list.innerHTML='';
+  partState.forEach((p,i)=>{
+    const div=document.createElement('div');
+    div.className='part-item'+(p.active?' active':'');
+    div.innerHTML=`
+      <span class="pd" style="background:${p.color};box-shadow:0 0 5px ${p.color};"></span>
+      <span class="pn">${p.name}</span>
+      <span class="pm">${p.role} · ${p.mass}</span>
+    `;
+    div.addEventListener('click',()=>{
+      p.active=!p.active;
+      renderParts(); computeForces(); updateForcesUI();
+      log(`⚛️ PART ${p.name} → ${p.active?'aktiv':'inaktiv'}`,'Atom','atom');
+    });
+    list.appendChild(div);
+  });
+  document.getElementById('partsCount').textContent=partState.filter(p=>p.active).length+'/'+PARTS.length;
+}
+
+// ─── FORCES-UI ─────────────────────────────────────────────────
+function updateForcesUI(){
+  const list=document.getElementById('forceList');
+  list.innerHTML='';
+  const sorted=Object.entries(forceState.pairForces).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const max=Math.max(0.001, sorted[0]?.[1]||1);
+  sorted.forEach(([k,v])=>{
+    const row=document.createElement('div');
+    row.className='force-row';
+    row.innerHTML=`
+      <span class="pair">${k}</span>
+      <span class="val">${v.toFixed(3)}</span>
+      <div class="force-bar"><div class="fill" style="width:${(v/max)*100}%"></div></div>
+    `;
+    list.appendChild(row);
+  });
+
+  // Clusters
+  const cl=document.getElementById('clusterList');
+  cl.innerHTML='';
+  if(forceState.clusters.length===0){
+    cl.innerHTML='<span style="color:#5a7a8a">— keine Cluster —</span>';
+  } else {
+    forceState.clusters.forEach((grp,i)=>{
+      const chip=document.createElement('span');
+      chip.className='cluster-chip c'+((i%4)+1);
+      chip.textContent=grp.join('·');
+      cl.appendChild(chip);
+    });
+  }
+}
+
+// ─── MODULE TOGGLE ─────────────────────────────────────────────
+document.getElementById('partsList').addEventListener('mouseenter',()=>{},true);
+
+// Wir brauchen keine Module-Liste links — aber wir wollen Module via API togglen.
+// Einfacher Haken: orbit click = KlicK + Ripple (unten).
+
+// ─── KLICK / SERUM ─────────────────────────────────────────────
+let klickCounter=localMaster.klick||0;
+let zackCounter=localMaster.zack||0;
+let serumStopped=false;
+
+function addKlick(n=1, fromDjinn=false){
+  if(!localMaster.me2.allow){log('⛔ KlicK blockiert','Zoll','err');beep(220,0.06);return;}
+  if(!fromDjinn && serumStopped){
+    log('🩸 Serum aktiv · bewusst 99+100 klicken','Serum','warn');
+    return;
+  }
+  const mult=localMaster.me2.boost?2:(localMaster.me2.slow?0.5:1);
+  const before=klickCounter;
+  klickCounter+=n*mult;
+  if(!fromDjinn) beep(660,0.03);
+  if(!fromDjinn && before<98 && klickCounter>=98 && klickCounter<100){
+    klickCounter=98; serumStopped=true;
+    log('🩸 SERUM · bei 98 gestoppt','Serum','warn');
+  }
+  if(klickCounter>=100){
+    const gained=Math.floor(klickCounter/100);
+    klickCounter=klickCounter%100; zackCounter+=gained; serumStopped=false;
+    log(`🎉 100 KlicK → +${gained} ZacK (total ${zackCounter})`,'ZaM','ok');
+    beep(880,0.12);
+    addScore(50);
+    // KlicK → Kern-Impuls
+    forceState.magnify=Math.min(3.0, forceState.magnify+0.02);
+    document.getElementById('magSlider').value=forceState.magnify;
+  }
+  localMaster.klick=klickCounter; localMaster.zack=zackCounter;
+  persistMaster(); updateAll();
+}
+function resetKlick(){
+  klickCounter=0; zackCounter=0; serumStopped=false;
+  localMaster.klick=0; localMaster.zack=0;
+  persistMaster(); updateAll();
+  log('⟲ KlicK/ZacK/Serum zurückgesetzt','KlicK','warn');
+}
+
+// ─── ZaM ───────────────────────────────────────────────────────
+function runZamSequence(steps){
+  log(`ZaM-Sequenz: ${steps.join(' → ')}`,'ZaM','ok');
+  localMaster.zam='run'; localMaster.zamCount=(localMaster.zamCount||0)+1;
+  updateAll();
+  let i=0;
+  const next=()=>{
+    if(localMaster.zam!=='run'){log('⏸ ZaM abgebrochen','ZaM','warn');return;}
+    if(i>=steps.length){
+      localMaster.zam='done'; updateAll();
+      log(`✅ ZaM fertig (${steps.length} Schritte)`,'ZaM','ok');
+      // ZaM → Kern-Impuls
+      forceState.magnify=Math.min(3.0, forceState.magnify+0.05);
+      document.getElementById('magSlider').value=forceState.magnify;
+      return;
+    }
+    const step=steps[i++];
+    log(`  ↳ ${step}`,'ZaM');
+    addKlick(1);
+    if(String(step).toUpperCase().includes('MAINBOARD')){
+      addScore(80); log('MAINBOARD · +80 SCORE','MAINBOARD','ok');
+    }
+    setTimeout(next,320);
+  };
+  next();
+}
+
+// ─── 2me ──────────────────────────────────────────────────────
+function syncMe2Buttons(){
+  document.getElementById('btnAllow').classList.toggle('active',localMaster.me2.allow);
+  document.getElementById('btnBoost').classList.toggle('active',localMaster.me2.boost);
+  document.getElementById('btnSlow').classList.toggle('active',localMaster.me2.slow);
+  document.getElementById('btnOverride').classList.toggle('active',localMaster.me2.override);
+  document.getElementById('zollState').textContent=localMaster.me2.allow?'offen':'blockiert';
+}
+
+// ─── DJINN ─────────────────────────────────────────────────────
+const djinnState={on:true, rate:3000, ordnung:0, last:'–'};
+const DJINN_EVENTS=[
+  {tag:'KlicK',   fn:()=>addKlick(1,true), weight:22},
+  {tag:'Magnify', fn:()=>{forceState.magnify=Math.min(3.0,Math.max(0.2,forceState.magnify+(Math.random()*0.2-0.1)));document.getElementById('magSlider').value=forceState.magnify;}, weight:10},
+  {tag:'Zelle',   fn:()=>befreieZelle(1), weight:8},
+  {tag:'Flow',    fn:()=>{flowState.speed=Math.min(0.02,flowState.speed*1.1);}, weight:6},
+  {tag:'Pattern', fn:()=>{const p=Array.from({length:9},()=>Math.floor(Math.random()*9)).join('-');log('✨ ZAHRAND: '+p,'ZAHRAND','djinn');}, weight:8},
+  {tag:'Sync',    fn:()=>{log('🔁 run.sli sync → '+(47+Math.floor(Math.random()*20)),'Sync','djinn');}, weight:6},
+  {tag:'Boost',   fn:()=>{const s=['PE','NE','WARB'][Math.floor(Math.random()*3)];log(`🔷 STATION ${s} → BOOST`,'Station','djinn');}, weight:5},
+  {tag:'EARN',    fn:()=>{const n=10+Math.floor(Math.random()*40);addScore(n);log(`💰 +${n} SCORE`,'EARN','djinn');}, weight:12},
+  {tag:'Cluster', fn:()=>{forceState.clusterThresh=Math.max(0.15,forceState.clusterThresh-0.02);computeForces();updateForcesUI();log(`🧩 Cluster-Schwelle → ${forceState.clusterThresh.toFixed(2)}`,'Cluster','atom');}, weight:5},
+];
+
+let djinnTimer=null;
+function startDjinn(){
+  if(djinnTimer) clearInterval(djinnTimer);
+  djinnTimer=setInterval(()=>{
+    if(!djinnState.on) return;
+    const total=DJINN_EVENTS.reduce((a,e)=>a+e.weight,0);
+    let r=Math.random()*total, pick=DJINN_EVENTS[0];
+    for(const e of DJINN_EVENTS){ r-=e.weight; if(r<=0){pick=e;break;} }
+    try{pick.fn();}catch(_){}
+    djinnState.last=pick.tag;
+    document.getElementById('djinnLast').textContent=pick.tag;
+    djinnState.ordnung=Math.min(100,djinnState.ordnung+0.6);
+    updateDjinnUI();
+  }, djinnState.rate);
+}
+function updateDjinnUI(){
+  document.getElementById('djinnState').textContent=djinnState.on?'on':'off';
+  document.getElementById('djinnOrdnung').textContent=Math.round(djinnState.ordnung)+'%';
+  document.getElementById('djinnOrdnungBar').style.width=djinnState.ordnung+'%';
+}
+
+// ─── KOLLEKTIV ─────────────────────────────────────────────────
+function befreieZelle(n=1){
+  localMaster.zellen=Math.min(59,(localMaster.zellen||0)+n);
+  localMaster.kollektiv=Math.min(100,Math.round((localMaster.zellen/59)*100));
+  updateAll();
+}
+
+// ─── EARN / SCORE ──────────────────────────────────────────────
+function addScore(n){
+  localMaster.score=(localMaster.score||0)+n;
+  updateAll();
+}
+
+// ─── PIPELINE / STATION / CACHE ────────────────────────────────
+const pipeState={current:'—'};
+document.getElementById('pipeP0').addEventListener('click',()=>setPipe('P0 · RAW → WACH'));
+document.getElementById('pipeP1').addEventListener('click',()=>setPipe('P1 · STRUCTURE → GEORDNET'));
+document.getElementById('pipeP2').addEventListener('click',()=>setPipe('P2 · VECTOR → RICHTUNG'));
+document.getElementById('pipeP4').addEventListener('click',()=>setPipe('P4 · FUSION → STABIL'));
+document.getElementById('pipePe').addEventListener('click',()=>setPipe('Pe · BOOST → READY'));
+function setPipe(v){pipeState.current=v;document.getElementById('pipeState').textContent=v;log('Pipeline: '+v,'Pipeline','ok');}
+
+document.getElementById('bstPE').addEventListener('click',(e)=>{e.currentTarget.classList.toggle('active');forceState.magnify=Math.min(3.0,forceState.magnify+0.08);document.getElementById('magSlider').value=forceState.magnify;log('🔷 STATION PE → BOOST','Station','ok');});
+document.getElementById('bstNE').addEventListener('click',(e)=>{e.currentTarget.classList.toggle('active');forceState.clusterThresh=Math.max(0.1,forceState.clusterThresh-0.03);computeForces();updateForcesUI();log('🔷 STATION NE → BOOST','Station','ok');});
+document.getElementById('bstWARB').addEventListener('click',(e)=>{e.currentTarget.classList.toggle('active');flowState.speed=Math.min(0.02,flowState.speed*1.15);log('🔷 STATION WARB → BOOST','Station','ok');});
+
+// ─── MODUS ─────────────────────────────────────────────────────
+document.querySelectorAll('.me2-buttons button[data-mode]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.me2-buttons button[data-mode]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    orbitState.mode=b.dataset.mode;
+    document.getElementById('ovMode').textContent=orbitState.mode;
+    log(`Modus: ${orbitState.mode}`,'arbeit','ok');
+  });
+});
+
+// ─── MOBILE TABS ──────────────────────────────────────────────
+document.querySelectorAll('#mobTabs button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#mobTabs button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('main').dataset.tab=b.dataset.tab;
+    setTimeout(resizeCanvas,50);
+  });
+});
+
+// ─── MAGNIFY SLIDER ────────────────────────────────────────────
+document.getElementById('magSlider').addEventListener('input',(e)=>{
+  forceState.magnify=parseFloat(e.target.value);
+  computeForces(); updateForcesUI();
+});
+document.getElementById('gConst').addEventListener('click',()=>{
+  forceState.G=parseFloat(prompt('G eingeben (0.0001 – 0.005):', forceState.G)||forceState.G);
+  computeForces(); updateForcesUI();
+});
+document.getElementById('clusterThresh').addEventListener('click',()=>{
+  forceState.clusterThresh=parseFloat(prompt('Cluster-Schwelle (0.1 – 1.5):', forceState.clusterThresh)||forceState.clusterThresh);
+  computeForces(); updateForcesUI();
+});
+
+// ─── FLOW BUTTONS ──────────────────────────────────────────────
+document.getElementById('btnFlowFast').addEventListener('click',()=>{flowState.speed=Math.min(0.02,flowState.speed*1.5);log(`🌊 Flow×1.5 · speed=${flowState.speed.toFixed(4)}`,'Flow','atom');});
+document.getElementById('btnFlowSlow').addEventListener('click',()=>{flowState.speed=Math.max(0.0005,flowState.speed/1.5);log(`🌊 Flow/1.5 · speed=${flowState.speed.toFixed(4)}`,'Flow','atom');});
+document.getElementById('btnFlowPulse').addEventListener('click',()=>{
+  for(let i=0;i<30;i++) spawnFlowParticle();
+  forceState.magnify=Math.min(3.0,forceState.magnify+0.1);
+  document.getElementById('magSlider').value=forceState.magnify;
+  log('💥 FLOW-PULSE · 30 Partikel + Kern-Impuls','Flow','atom');
+});
+
+// ─── DJINN BUTTONS ─────────────────────────────────────────────
+document.getElementById('btnDjinn').addEventListener('click',(e)=>{
+  djinnState.on=!djinnState.on;
+  e.currentTarget.classList.toggle('active',djinnState.on);
+  e.currentTarget.textContent=djinnState.on?'🧞 ON':'🧞 OFF';
+  log(`🧞 DJINN ${djinnState.on?'aktiv':'aus'}`,'DJINN','djinn');
+  updateDjinnUI();
+});
+document.getElementById('btnDjinnFast').addEventListener('click',()=>{djinnState.rate=Math.max(400,djinnState.rate/2);startDjinn();log('🧞 DJINN ⚡×2 · rate='+djinnState.rate+'ms','DJINN','djinn');});
+document.getElementById('btnDjinnSlow').addEventListener('click',()=>{djinnState.rate=Math.min(20000,djinnState.rate*2);startDjinn();log('🧞 DJINN 🐢 · rate='+djinnState.rate+'ms','DJINN','djinn');});
+document.getElementById('btnOrdnung').addEventListener('click',()=>{
+  log('📐 ORDNUNGSVERFAHREN gestartet','Ordnung','atom');
+  const steps=['P0','P1','P2','P4','Pe'];
+  steps.forEach((s,i)=>setTimeout(()=>{
+    setPipe(s+' · läuft');
+    log(`  ↳ Pipeline ${s}`,'Ordnung','atom');
+    if(s==='Pe'){
+      setPipe('Pe · READY');
+      djinnState.ordnung=Math.min(100,djinnState.ordnung+15);
+      updateDjinnUI();
+      // Kern-Ordnung: Cluster-Schwelle sinkt leicht, Kräfte werden klarer
+      forceState.clusterThresh=Math.max(0.1,forceState.clusterThresh-0.02);
+      computeForces(); updateForcesUI();
+      log('📐 ORDNUNG stabilisiert','Ordnung','atom');
+    }
+  },i*220));
+});
+
+// ─── BUTTONS ───────────────────────────────────────────────────
+document.getElementById('btnZamRun').addEventListener('click',()=>runZamSequence(['LOAD','ARBEIT_RUN','MAINBOARD','DONE']));
+document.getElementById('btnZamStop').addEventListener('click',()=>{localMaster.zam='idle';updateAll();log('⏸ ZaM gestoppt','ZaM','warn');});
+document.getElementById('btnKlick').addEventListener('click',()=>addKlick(1));
+document.getElementById('btnZackReset').addEventListener('click',resetKlick);
+document.getElementById('btnAllow').addEventListener('click',()=>{localMaster.me2.allow=!localMaster.me2.allow;syncMe2Buttons();log(`Zoll → ${localMaster.me2.allow?'offen':'blockiert'}`,'2me','warn');});
+document.getElementById('btnBoost').addEventListener('click',()=>{localMaster.me2.boost=!localMaster.me2.boost;if(localMaster.me2.boost)localMaster.me2.slow=false;syncMe2Buttons();});
+document.getElementById('btnSlow').addEventListener('click',()=>{localMaster.me2.slow=!localMaster.me2.slow;if(localMaster.me2.slow)localMaster.me2.boost=false;syncMe2Buttons();});
+document.getElementById('btnOverride').addEventListener('click',()=>{localMaster.me2.override=!localMaster.me2.override;syncMe2Buttons();});
+
+let soundOn=false;
+document.getElementById('btnSound').addEventListener('click',(e)=>{soundOn=!soundOn;e.currentTarget.classList.toggle('active',soundOn);e.currentTarget.textContent=(soundOn?'🔊':'🔇')+' TON';if(soundOn)beep(880,0.06);});
+document.getElementById('btnAuto').addEventListener('click',(e)=>{orbitState.running=!orbitState.running;e.currentTarget.classList.toggle('active',orbitState.running);e.currentTarget.textContent=(orbitState.running?'⏸':'▶')+' AUTO';});
+
+// ─── LOG FILTER ────────────────────────────────────────────────
+document.querySelectorAll('#logBar button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#logBar button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    const box=document.getElementById('logBox');
+    box.className=b.dataset.f==='all'?'':'filter-'+b.dataset.f;
+  });
+});
+
+// ─── HDF ───────────────────────────────────────────────────────
+const HDF_ROM={
+  d:{file:'d.hdf.rom',label:'D-Basis'}, e:{file:'e.hdf.rom',label:'E-Basis'},
+  i:{file:'i.hdf.rom',label:'I-Basis'}, n:{file:'n.hdf.rom',label:'N-Basis'},
+  o:{file:'o.hdf.rom',label:'O-Basis'}, r:{file:'r.hdf.rom',label:'R-Basis'},
+  s:{file:'s.hdf.rom',label:'S-Basis'}, u:{file:'u.hdf.rom',label:'U-Basis'},
+  w:{file:'w.hdf.rom',label:'W-Basis'},
+  'axiom':{file:'axiom.hdf.rom',label:'Axiom'},
+  '81':{file:'81.hdf.rom',label:'81-Basis'},
+  'zauber.6':{file:'zauber.6.user.use',label:'Zauber-6'},
+  'muss':{file:'muss.ready',label:'Muss-Ready'},
+  'show':{file:'show.ready',label:'Show-Ready'},
+  'sli.open':{file:'sli.open.ready',label:'SLI-Open'},
+};
+function resolveHdf(input){
+  const k=String(input||'').trim().toLowerCase().replace('#','');
+  const rom=HDF_ROM[k];
+  return rom ? `✅ ${k} · ${rom.file} · ${rom.label}` : `❌ "${k}" nicht im HDF-ROM-Register`;
+}
+document.getElementById('hdfBtn').addEventListener('click',()=>{
+  const v=document.getElementById('hdfInput').value;
+  const out=resolveHdf(v);
+  document.getElementById('hdfOut').textContent=out;
+  log(out,'HDF',out.startsWith('✅')?'ok':'err');
+});
+document.getElementById('hdfInput').addEventListener('keydown',(e)=>{if(e.key==='Enter')document.getElementById('hdfBtn').click();});
+
+// ─── LOG ───────────────────────────────────────────────────────
+function log(msg,tag='arbeit',type=''){
+  const box=document.getElementById('logBox');
+  const entry=document.createElement('div');
+  entry.className='entry'+(type?' is-'+type:'');
+  const t=new Date().toLocaleTimeString('de-DE');
+  entry.innerHTML=`<span class="time">[${t}]</span><span class="tag">${tag}</span><span class="${type}">${msg}</span>`;
+  box.appendChild(entry);
+  box.scrollTop=box.scrollHeight;
+  while(box.children.length>150) box.removeChild(box.firstChild);
+}
+
+// ─── SOUND ─────────────────────────────────────────────────────
+let audioCtx=null;
+function beep(freq,dur){
+  if(!soundOn) return;
+  try{
+    audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.type='sine'; o.frequency.value=freq; g.gain.value=0.04;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime+dur);
+  }catch(_){}
+}
+
+// ─── CANVAS KLICK → KlicK + Ripple ────────────────────────────
+canvas.addEventListener('click',(e)=>{
+  const r=canvas.getBoundingClientRect();
+  spawnRipple(e.clientX-r.left,e.clientY-r.top);
+  addKlick(1);
+});
+
+// ─── TASTATUR ──────────────────────────────────────────────────
+document.addEventListener('keydown',(e)=>{
+  if(e.target.tagName==='INPUT') return;
+  if(e.key===' '){e.preventDefault();addKlick(1);spawnRipple(canvas.width/2/(window.devicePixelRatio||1),canvas.height/2/(window.devicePixelRatio||1));}
+  if(e.key==='r'||e.key==='R'){
+    if(e.shiftKey) resetKlick();
+    else{orbitState.index=0;log('⟲ Orbit Reset','arbeit','warn');}
+  }
+  if(e.key==='z'||e.key==='Z') document.getElementById('btnZamRun').click();
+  if(e.key==='d'||e.key==='D') document.getElementById('btnDjinn').click();
+  if(e.key==='o'||e.key==='O') document.getElementById('btnOrdnung').click();
+  if(e.key==='f'||e.key==='F') document.getElementById('btnFlowPulse').click();
+  if(e.key==='p'||e.key==='P'){partState.forEach(p=>p.active=!p.active);renderParts();computeForces();updateForcesUI();log('⚛️ alle Parts getoggelt','Atom','atom');}
+  if(e.key==='1') document.querySelector('[data-mode="IQQ"]')?.click();
+  if(e.key==='2') document.querySelector('[data-mode="OCTA"]')?.click();
+  if(e.key==='3') document.querySelector('[data-mode="A81"]')?.click();
+});
+
+// ─── UPDATE ALL ────────────────────────────────────────────────
+function updateAll(){
+  document.getElementById('klickCount').textContent=klickCounter;
+  document.getElementById('zackCount').textContent=zackCounter;
+  document.getElementById('ftKlick').textContent=klickCounter;
+  document.getElementById('serumState').textContent=serumStopped?'🩸 stop':'inaktiv';
+  document.getElementById('mpSerum').textContent=klickCounter+'/98';
+  document.getElementById('mpSerumBar').style.width=Math.min(100,(klickCounter/98)*100)+'%';
+  document.getElementById('mpKollektiv').textContent=localMaster.kollektiv+'%';
+  document.getElementById('mpKollektivBar').style.width=localMaster.kollektiv+'%';
+  document.getElementById('zamState').textContent=localMaster.zam;
+  document.getElementById('klickState').textContent=localMaster.me2.allow?'bereit':'blockiert';
+  updateDjinnUI();
+  syncMe2Buttons();
+}
+
+// ─── CLOCK ─────────────────────────────────────────────────────
+function updateClock(){document.getElementById('hdrClock').textContent='⏱️ '+new Date().toLocaleTimeString('de-DE');}
+setInterval(updateClock,1000); updateClock();
+
+// ─── API ───────────────────────────────────────────────────────
+window.ATOM={
+  // Teile
+  parts:()=>partState.map(p=>({id:p.id,active:p.active,mass:p.mass})),
+  toggle:(id)=>{const p=partState.find(x=>x.id===id);if(p)p.active=!p.active;renderParts();computeForces();updateForcesUI();},
+  // Kräfte
+  forces:()=>({...forceState}),
+  recompute:()=>{computeForces();updateForcesUI();},
+  magnify:(v)=>{forceState.magnify=Math.max(0.2,Math.min(3.0,v));document.getElementById('magSlider').value=forceState.magnify;computeForces();updateForcesUI();},
+  // Flow
+  flow:{
+    phase:()=>flowState.phase,
+    dir:()=>flowState.dir,
+    speed:(v)=>{if(v)flowState.speed=v;return flowState.speed;},
+    pulse:()=>document.getElementById('btnFlowPulse').click(),
+  },
+  // KlicK
+  klick:(n=1)=>addKlick(n),
+  resetKlick,
+  // ZaM
+  zam:{run:(steps)=>runZamSequence(steps||['LOAD','ARBEIT_RUN','MAINBOARD','DONE']),stop:()=>{localMaster.zam='idle';updateAll();}},
+  // me2
+  me2:{allow:()=>{localMaster.me2.allow=true;syncMe2Buttons();},block:()=>{localMaster.me2.allow=false;syncMe2Buttons();}},
+  // Kollektiv
+  kollektiv:{befreie:(n=1)=>befreieZelle(n)},
+  // Score
+  score:{add:(n)=>addScore(n)},
+  // DJINN
+  djinn:{on:()=>{djinnState.on=true;updateDjinnUI();},off:()=>{djinnState.on=false;updateDjinnUI();},ordnung:()=>document.getElementById('btnOrdnung').click()},
+  // HDF
+  hdf:{resolve:resolveHdf,register:HDF_ROM},
+  // State
+  state:()=>({
+    mass:partState.filter(p=>p.active).reduce((a,p)=>a+p.mass,0),
+    grav:forceState.totalGrav, koop:forceState.koop, pool:forceState.pool,
+    clusters:forceState.clusters.length,
+    flow:{phase:flowState.phase,dir:flowState.dir,speed:flowState.speed,flips:flowState.flips},
+    klick:klickCounter,zack:zackCounter,serum:serumStopped,
+    kollektiv:localMaster.kollektiv,zellen:localMaster.zellen,score:localMaster.score,
+  }),
+};
+
+// ─── INIT ──────────────────────────────────────────────────────
+renderParts();
+resizeCanvas();
+computeForces();
+updateForcesUI();
+updateAll();
+startDjinn();
+
+log('⚛️ UNI·ATOM bereit · CPU/GPU/RAM/SSD/NET/IO im Kern','init','ok');
+log('🔎 Magnify · 🧲 Gravitation · 🧩 Cluster · 💠 KOOP/POOL · 🌊 Flow hin↔her','init','atom');
+log('Kompatibel: reFINAL · DJINN · KlicK · ZaM · Serum · MAINBOARD','init');
+log('Space = KlicK · Z = ZaM · D = DJINN · O = Ordnung · F = Flow-Pulse · P = Parts · 1/2/3 = Modus','init','warn');
+
+requestAnimationFrame(loop);
+
+console.log('%c⚛️ UNI·ATOM geladen','color:#b388ff;font-weight:bold');
+console.log('→ window.ATOM.forces() · .magnify(1.5) · .flow.pulse() · .zam.run() · .state()');
+</script>
+</body>
+</html>
