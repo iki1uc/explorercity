@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>2me – Mirror</title>
+
+<style>
+body{background:#000;color:#0f0;font-family:monospace;padding:20px;}
+pre{background:#111;padding:20px;border:1px solid #333;}
+input{background:#111;color:#0f0;border:1px solid #333;padding:6px;width:120px;}
+button{background:#111;color:#0f0;border:1px solid #333;padding:8px 16px;margin-left:10px;}
+</style>
+</head>
+
+<body>
+
+<h1>2me – Mirror</h1>
+
+<p>Input:</p>
+<input id="inp" type="text" value="iki1uc">
+<button onclick="run2me()">RUN</button>
+
+<pre id="out">Bereit...</pre>
+
+<script type="module">
+import { twoMe } from "./twoMe.js";
+
+function run2me(){
+  const x = inp.value;
+  out.textContent = twoMe(x);
+}
+</script>
+
+</body>
+</html>
